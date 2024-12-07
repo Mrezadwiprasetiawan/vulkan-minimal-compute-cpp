@@ -126,8 +126,6 @@ int main() {
     throw runtime_error("No heap found");
     exit(EXIT_FAILURE);
   }
-  cout<<"Heap index="<<heapIndex<<endl;
-  cout<<"Heap size="<<heapSize<<endl;
 
   MemoryAllocateInfo inBuffInfo(inMemReq.size, heapIndex);
   MemoryAllocateInfo outBuffInfo(outMemReq.size,heapIndex);
