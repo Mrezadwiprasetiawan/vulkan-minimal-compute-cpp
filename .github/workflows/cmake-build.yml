@@ -18,9 +18,9 @@ jobs:
     - name: Install Vulkan SDK
       run: |
         pwd
-        mkdir -p vulkan
-        wget -qO- https://sdk.lunarg.com/sdk/download/1.3.296.0/linux/vulkansdk-linux-x86_64-1.3.296.0.tar.xz | tar xJ -C ./vulkan
-        export VULKAN_SDK=./1.3.296.0/x86_64
+        mkdir -p $HOME/vulkan
+        wget -qO- https://sdk.lunarg.com/sdk/download/1.3.296.0/linux/vulkansdk-linux-x86_64-1.3.296.0.tar.xz | tar xJ -C $HOME/vulkan
+        export VULKAN_SDK=$HOME/vulkan/1.3.296.0/x86_64
         export PATH=$VULKAN_SDK/bin:$PATH
         export LD_LIBRARY_PATH=$VULKAN_SDK/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
         export VK_LAYER_PATH=$VULKAN_SDK/share/vulkan/explicit_layer.d
