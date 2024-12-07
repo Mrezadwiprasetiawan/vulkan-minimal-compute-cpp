@@ -250,7 +250,6 @@ int main() {
   cout<<to_string(waitFenceRes)<<endl;
 
   inBuffPtr=static_cast<float*>(dev.mapMemory(inBuffMem,0,buffSize));
-  cout<<"line 248 Ukuran tiap input/outputnya dalam byte = ";
   cout<<fixed<<setprecision(9)<<buffSize<<endl;
   float* outBuffPtr=static_cast<float*>(dev.mapMemory(outBuffMem,0,buffSize));
 
