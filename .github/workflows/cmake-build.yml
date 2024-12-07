@@ -17,8 +17,13 @@ jobs:
 
     - name: Install Vulkan SDK
       run: |
-        sudo apt update
-        sudo apt install -y vulkan-utils
+        wget -qO- https://sdk.lunarg.com/sdk/download/latest/linux/vulkan-sdk.tar.gz | tar xvz -C $HOME
+        echo "export VULKAN_SDK=$HOME/vulkan-sdk" >> ~/.bashrc
+        echo "export PATH=$VULKAN_SDK/bin:$PATH" >> ~/.bashrc
+        echo "export LD_LIBRARY_PATH=$VULKAN_SDK/lib:$LD_LIBRARY_PATH" >> ~/.bashrc
+        echo "export VK_ICD_FILENAMES=$VULKAN_SDK/etc/vulkan/icd.d/nvidia_icd.json" >> ~/.bashrc
+        echo "export VK_LAYER_PATH=$VULKAN_SDK/etc/vulkan/explicit_layer.d" >> ~/.bashrc
+        source ~/.bashrc
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
