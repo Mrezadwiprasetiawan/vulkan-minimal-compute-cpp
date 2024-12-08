@@ -37,22 +37,9 @@ int main() {
   const uint32_t apiVers=enumerateInstanceVersion();
 
   // AppInfo
-  ApplicationInfo appInfo(
-    appName,
-    1,              // Versi app
-    engineName,     // Nama engin
-    1,              // Versi Engine
-    apiVers         // Versi API vulkan
-  );
+  ApplicationInfo appInfo(appName,1,engineName,1,apiVers);
   // Instance info
-  InstanceCreateInfo instInfo(
-      InstanceCreateFlags(),
-      &appInfo,
-      0,
-      {},
-      0,
-      {}
-  );
+  InstanceCreateInfo instInfo(InstanceCreateFlags(),&appInfo,0,{},0,{});
   // Buat instance
   Instance inst= createInstance(instInfo);
 
@@ -64,7 +51,7 @@ int main() {
   }
 
 
-  // Memilih gpu pertama7
+  // Memilih gpu pertama
   PhysicalDevice physDev=physDevs[0];
 
 
@@ -83,10 +70,7 @@ int main() {
   DeviceQueueCreateInfo devQueueInfo(DeviceQueueCreateFlags(),queueFamIndex,1, &priorities);
 
   //mulai membuat device
-  DeviceCreateInfo devInfo(
-      DeviceCreateFlags(),
-      devQueueInfo
-    );
+  DeviceCreateInfo devInfo(DeviceCreateFlags(),devQueueInfo);
   Device dev=physDev.createDevice(devInfo);
 
 
@@ -94,12 +78,8 @@ int main() {
   DeviceSize buffSize=WIDTH*sizeof(float);
 
   //membuat buffer
-  BufferCreateInfo buffInfo(
-      BufferCreateFlags(),
-      buffSize,
-      BufferUsageFlagBits::eStorageBuffer,
-      SharingMode::eExclusive
-      );
+  BufferCreateInfo buffInfo(BufferCreateFlags(),buffSize,BufferUsageFlagBits::eStorageBuffer,
+      SharingMode::eExclusive);
   Buffer inBuff=dev.createBuffer(buffInfo);
   buffInfo.size=WIDTH*sizeof(float);
   Buffer outBuff=dev.createBuffer(buffInfo);
@@ -110,20 +90,18 @@ int main() {
   MemoryRequirements outMemReq=dev.getBufferMemoryRequirements(outBuff);
   //mencari tipe memori yang sesuai
   PhysicalDeviceMemoryProperties heapMemProp=physDev.getMemoryProperties();
-  DeviceSize heapSize=uint32_t(~0);
   uint32_t  heapIndex=uint32_t(~0);
   for(uint32_t i=0;i<heapMemProp.memoryTypeCount;++i){
     if((heapMemProp.memoryTypes[i].propertyFlags&::MemoryPropertyFlagBits::eHostVisible)
         &&
         (heapMemProp.memoryTypes[i].propertyFlags&::MemoryPropertyFlagBits::eHostCoherent)){
-      heapSize=heapMemProp.memoryHeaps[i].size;
       heapIndex=i;
       break;
     }
   }
 
   if(heapIndex==~0){
-    throw runtime_error("No heap found");
+    throw runtime_error("Fatal: tidak ditemukan heap dengan tipe yang sesuai");
     exit(EXIT_FAILURE);
   }
 
@@ -158,11 +136,8 @@ int main() {
 
 
   //buat shader module
-  ShaderModuleCreateInfo shaderModuleInfo(
-      ShaderModuleCreateFlags(),
-      shaderSize,
-      reinterpret_cast<uint32_t*>(shaderRaw.data())
-    );
+  ShaderModuleCreateInfo shaderModuleInfo(ShaderModuleCreateFlags(),shaderSize,
+      reinterpret_cast<uint32_t*>(shaderRaw.data()));
   ShaderModule shaderModule=dev.createShaderModule(shaderModuleInfo);
 
   //buat descriptor set layout binding untuk binding dengan shader
@@ -180,17 +155,9 @@ int main() {
   PipelineCache compPipeCache = dev.createPipelineCache(PipelineCacheCreateInfo());
 
   //akhirnya saat saat membuat pipeline
-  PipelineShaderStageCreateInfo pipeShaderStageInfo(
-      PipelineShaderStageCreateFlags(),
-      ShaderStageFlagBits::eCompute,
-      shaderModule,
-      "main"
-    );
-  ComputePipelineCreateInfo compPipeInfo(
-      PipelineCreateFlags(),
-      pipeShaderStageInfo,
-      compPipeLayout
-    );
+  PipelineShaderStageCreateInfo pipeShaderStageInfo(PipelineShaderStageCreateFlags(),
+      ShaderStageFlagBits::eCompute,shaderModule,"main");
+  ComputePipelineCreateInfo compPipeInfo(PipelineCreateFlags(),pipeShaderStageInfo,compPipeLayout);
   Pipeline compPipe=dev.createComputePipeline(compPipeCache,compPipeInfo).value;
 
 
@@ -217,11 +184,7 @@ int main() {
   CommandPool cmdPool=dev.createCommandPool(cmdPoolInfo);
 
   //alokasi commandBuffer
-  CommandBufferAllocateInfo cmdBuffAllocInfo(
-      cmdPool,
-      CommandBufferLevel::ePrimary,
-      1
-      );
+  CommandBufferAllocateInfo cmdBuffAllocInfo(cmdPool,CommandBufferLevel::ePrimary,1);
   vector<CommandBuffer> cmdBuffs=dev.allocateCommandBuffers(cmdBuffAllocInfo);
 
   //set commandBuffer dengan vector pertama
@@ -240,14 +203,9 @@ int main() {
   Queue Queue = dev.getQueue(queueFamIndex, 0);
   Fence fence = dev.createFence(vk::FenceCreateInfo());
 
-  SubmitInfo SubmitInfo(0,
-      nullptr,
-      nullptr,
-      1,
-      &cmdBuff);
+  SubmitInfo SubmitInfo(0,nullptr,nullptr,1,&cmdBuff);
   Queue.submit({ SubmitInfo }, fence);
   Result waitFenceRes=dev.waitForFences({ fence },true,uint64_t(-1));
-  cout<<to_string(waitFenceRes)<<endl;
 
   inBuffPtr=static_cast<float*>(dev.mapMemory(inBuffMem,0,buffSize));
   cout<<fixed<<setprecision(9)<<buffSize<<endl;

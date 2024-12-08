@@ -1,5 +1,5 @@
-CMakeFiles/
+*CMakeFiles/
 CMakeCache.txt
-.*.sw*
-*.spv
 *.cmake
+bin/
+build/

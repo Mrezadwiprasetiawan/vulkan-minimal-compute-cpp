@@ -87,20 +87,20 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /data/data/com.termux/files/home/vulkan/computeCpp/CMakeFiles /data/data/com.termux/files/home/vulkan/computeCpp//CMakeFiles/progress.marks
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
+	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(CMAKE_COMMAND) -E cmake_progress_start /data/data/com.termux/files/home/vulkan/computeCpp/CMakeFiles /data/data/com.termux/files/home/vulkan/computeCpp/lib//CMakeFiles/progress.marks
+	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lib/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /data/data/com.termux/files/home/vulkan/computeCpp/CMakeFiles 0
 .PHONY : all
 
 # The main codegen target
 codegen: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 codegen
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lib/codegen
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold "Finished generating code"
 .PHONY : codegen
 
 # The main clean target
 clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 clean
+	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lib/clean
 .PHONY : clean
 
 # The main clean target
@@ -109,57 +109,56 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 preinstall
+	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lib/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 preinstall
+	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lib/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
-#=============================================================================
-# Target rules for targets named run
+# Convenience name for target.
+lib/CMakeFiles/vkmincomp.dir/rule:
+	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lib/CMakeFiles/vkmincomp.dir/rule
+.PHONY : lib/CMakeFiles/vkmincomp.dir/rule
 
-# Build rule for target.
-run: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 run
-.PHONY : run
-
-# fast build rule for target.
-run/fast:
-	$(MAKE) $(MAKESILENT) -f quick/CMakeFiles/run.dir/build.make quick/CMakeFiles/run.dir/build
-.PHONY : run/fast
-
-#=============================================================================
-# Target rules for targets named compShader
-
-# Build rule for target.
-compShader: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 compShader
-.PHONY : compShader
-
-# fast build rule for target.
-compShader/fast:
-	$(MAKE) $(MAKESILENT) -f quick/CMakeFiles/compShader.dir/build.make quick/CMakeFiles/compShader.dir/build
-.PHONY : compShader/fast
-
-#=============================================================================
-# Target rules for targets named vkmincomp
-
-# Build rule for target.
-vkmincomp: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 vkmincomp
+# Convenience name for target.
+vkmincomp: lib/CMakeFiles/vkmincomp.dir/rule
 .PHONY : vkmincomp
 
 # fast build rule for target.
 vkmincomp/fast:
-	$(MAKE) $(MAKESILENT) -f lib/CMakeFiles/vkmincomp.dir/build.make lib/CMakeFiles/vkmincomp.dir/build
+	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/vkmincomp.dir/build.make lib/CMakeFiles/vkmincomp.dir/build
 .PHONY : vkmincomp/fast
+
+src/vkmincomp.o: src/vkmincomp.cxx.o
+.PHONY : src/vkmincomp.o
+
+# target to build an object file
+src/vkmincomp.cxx.o:
+	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/vkmincomp.dir/build.make lib/CMakeFiles/vkmincomp.dir/src/vkmincomp.cxx.o
+.PHONY : src/vkmincomp.cxx.o
+
+src/vkmincomp.i: src/vkmincomp.cxx.i
+.PHONY : src/vkmincomp.i
+
+# target to preprocess a source file
+src/vkmincomp.cxx.i:
+	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/vkmincomp.dir/build.make lib/CMakeFiles/vkmincomp.dir/src/vkmincomp.cxx.i
+.PHONY : src/vkmincomp.cxx.i
+
+src/vkmincomp.s: src/vkmincomp.cxx.s
+.PHONY : src/vkmincomp.s
+
+# target to generate assembly for a file
+src/vkmincomp.cxx.s:
+	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/vkmincomp.dir/build.make lib/CMakeFiles/vkmincomp.dir/src/vkmincomp.cxx.s
+.PHONY : src/vkmincomp.cxx.s
 
 # Help Target
 help:
@@ -169,9 +168,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... compShader"
-	@echo "... run"
 	@echo "... vkmincomp"
+	@echo "... src/vkmincomp.o"
+	@echo "... src/vkmincomp.i"
+	@echo "... src/vkmincomp.s"
 .PHONY : help
 
 
@@ -183,6 +183,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

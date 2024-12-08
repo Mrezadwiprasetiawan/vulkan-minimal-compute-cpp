@@ -1,26 +1,18 @@
-cmake_minimum_required(VERSION 3.31.1)
-project(run)
+cmake_minimum_required(VERSION 3.31.2)
 
-# Menemukan Vulkan
-find_package(Vulkan REQUIRED)
+project(MyProject VERSION 0.2 LANGUAGES CXX)
 
-# Kompilasi shader HLSL ke SPV menggunakan glslc
-add_custom_command(
-  OUTPUT compute.spv  # File output yang dihasilkan
-  COMMAND glslc -fshader-stage=compute "compute.hlsl" -o "compute.spv"
-  DEPENDS "compute.hlsl"  # Menandakan bahwa file .hlsl dibutuhkan sebelum menjalankan perintah ini
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}  # Jalankan dari direktori sumber
-  COMMENT "Mengkompilasi Shader"  # Komentar yang ditampilkan saat proses build
-)
+find_package(Vulkan  REQUIRED)
 
-# Menambahkan target custom untuk shader
-add_custom_target(compShader DEPENDS compute.spv)
+#untuk exe
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Menambahkan eksekutabel utama
-add_executable(${PROJECT_NAME} "main.cpp")
+#untuk shared
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Menghubungkan eksekutabel dengan Vulkan
-target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
+#untuk static
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+include_directories(include)
 
-# Menambahkan ketergantungan pada target compShader
-add_dependencies(${PROJECT_NAME} compShader)
+add_subdirectory(quick)
+add_subdirectory(lib)
