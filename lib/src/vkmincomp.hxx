@@ -19,18 +19,15 @@ namespace vkmincomp {
     STANDARD,
     NO
   };
-
-  struct IObinding{
-    vector<uint32_t> Sets;
-    vector<uint32_t> Bindings;
-  };
   
   class stdEng {
     private:
       DebugMode debugMode=DebugMode::NO;
+      uint32_t width,height,depth;
 
       Instance* inst;
       PhysicalDevice* physdev;
+      uint32_t queueFamIndex;
       Device* dev;
       vector<BufferCreateInfo*> inBuffInfos, outBuffInfos;
       vector<Buffer*> inBuffs, outBuffs;
@@ -54,15 +51,29 @@ namespace vkmincomp {
       DescriptorSetAllocateInfo* descSetAllocInfo;
       vector<DescriptorSet*> descSets;
       vector<WriteDescriptorSet*> writedescsSet;
+      vector<DescriptorBufferInfo*> descBuffInfos;
+      vector<WriteDescriptorSet*> writeDescSets;
+      CommandPoolCreateInfo* cmdPoolInfo;
+      CommandPool* cmdPool;
+      CommandBufferAllocateInfo* cmdBuffAllocInfo;
+      vector<CommandBuffer*> cmdBuffs;
+      Queue* queue;
+      Fence* fence;
+      SubmitInfo* submitInfo;
+      Result* waitFenceRes;
+
 
       float priorities;
       vector<vector<void*>> inputs;
+      vector<uint32_t> inBinding;
       vector<size_t> insizes;
       vector<vector<void*>> outputs;
       vector<size_t> outsizes;
       vector<uint32_t> bindings;
+      uint32_t IOSetOffset,IOBindingOffset;
       char* filepath;
       char* entryPoint;
+      uint64_t time;
 
       void createDevice();
       void createBuffer();
@@ -74,6 +85,9 @@ namespace vkmincomp {
       void createPipeline();
       void createDescriptorPool();
       void allocateDescriptorSet();
+      void createCommandBuffer();
+      void sendCommand();
+      void waitFence();
 
 
     public:
@@ -81,13 +95,15 @@ namespace vkmincomp {
 
       void setDebugMode(DebugMode debugMode);
       DebugMode getDebugMode();
+      void setWorkgroupSize(uint32_t width,uint32_t height,uint32_t depth);
 
       void setPriorities(float priorities);
       void setInputs(vector<vector<void*>> inputs, vector<size_t> size);
       void setOutputs(vector<vector<void*>> outputs, vector<size_t> size);
-      void setBinding(vector<uint32_t> bindings);
+      void setBinding(vector<uint32_t> bindings,uint32_t IOSetOffset,uint32_t IOBindingOffset);
       void setShaderFile(char* filepath);
       void setEntryPoint(char* entryPoint);
+      void setWaitFenceFor(uint64_t time);
 
       void run();
 

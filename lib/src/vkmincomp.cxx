@@ -34,8 +34,10 @@ void stdEng::setOutputs(vector<vector<void*>> outputs, vector<size_t> size) {
 }
 
 //mengatur binding di shader
-void stdEng::setBinding(vector<uint32_t> bindings) {
+void stdEng::setBinding(vector<uint32_t> bindings,uint32_t IOSetOffset,uint32_t IOBindingOffset) {
   this->bindings=bindings;
+  this->IOSetOffset=IOSetOffset;
+  this->IOBindingOffset=IOBindingOffset;
 }
 
 //mengatur path dimana shader berada
@@ -46,6 +48,10 @@ void stdEng::setShaderFile(char* filepath) {
 //set nama fungsi utama atau tempat masuknya di shader
 void stdEng::setEntryPoint(char* entryPoint){
   this->entryPoint=entryPoint;
+}
+
+void stdEng::setWaitFenceFor(uint64_t time){
+  this->time=time;
 }
 //akhir dari metode public
 
@@ -63,8 +69,8 @@ void stdEng::createDevice() {
   auto qFamProp=find_if(qFamProps.begin(), qFamProps.end(), [](QueueFamilyProperties qFamPropsT){
     return qFamPropsT.queueFlags & QueueFlagBits::eCompute;
     });
-  uint32_t queueFamIndex=distance(qFamProps.begin(), qFamProp);
-  DeviceQueueCreateInfo devQInfo(DeviceQueueCreateFlags(), queueFamIndex, 1, &this->priorities);
+  this->queueFamIndex=distance(qFamProps.begin(), qFamProp);
+  DeviceQueueCreateInfo devQInfo(DeviceQueueCreateFlags(), this->queueFamIndex, 1, &this->priorities);
   DeviceCreateInfo devInfo({}, devQInfo);
   Device dev=physdev->createDevice(devInfo);
   this->dev =&dev;
@@ -228,18 +234,78 @@ void stdEng::createDescriptorPool(){
 
 //alokasi descriptor set
 void stdEng::allocateDescriptorSet(){
-  //param kedua hrusnya sih jumlaj descriptor setnya jadi harus sama dengan jumlah total sst
+  //param kedua hrusnya sih jumlah descriptor setnya jadi harus sama dengan jumlah total sst
   DescriptorSetAllocateInfo descSetAllocInfo(*(this->descPool),this->bindings.size(),
       this->descSetLay);
   this->descSetAllocInfo=&descSetAllocInfo;
   vector<DescriptorSet> descSets=this->dev->allocateDescriptorSets(descSetAllocInfo);
   for(DescriptorSet descSet:descSets) this->descSets.push_back(&descSet);
-  for(uint32_t set;set<this->bindings.size();++set){
-    vector<WriteDescriptorSet> writeDescSet;
-    for(uint32_t binding;binding<this->bindings.at(set);++binding){
-      writeDescSet.push_back(descSets.at(set),binding,);
+  vector<DescriptorBufferInfo> descBuffInfos;
+  for(uint32_t i=0;i<this->insizes.size();++i){
+    DescriptorBufferInfo descbuffinfo(*this->inBuffs.at(i),0,this->inBuffInfos.at(i)->size);
+    descBuffInfos.push_back(descbuffinfo);
+  }
+  for(uint32_t i=0;i<this->outsizes.size();++i){
+    DescriptorBufferInfo descbuffinfo(*this->outBuffs.at(i),0,this->outBuffInfos.at(i)->size);
+    descBuffInfos.push_back(descbuffinfo);
+  }
+  vector<WriteDescriptorSet> writeDescSets;
+  uint32_t p=0;
+  if(IOBindingOffset!=0){
+    for(uint32_t i=0;i<=IOSetOffset;++i){
+      if(i!=IOSetOffset){
+        for(uint32_t j=0;j<bindings.at(i);++j){
+          writeDescSets.push_back({descSets.at(i),j,0,i,DescriptorType::eStorageBuffer,nullptr,&descBuffInfos.at(p)});
+          p++;
+        }
+      }
     }
   }
+  else{
+    for(uint32_t i=0;i<IOSetOffset;++i){
+      for(uint32_t i=0;i<IOSetOffset;++i){
+        for(uint32_t j=0;j<bindings.at(i);++j){
+          writeDescSets.push_back({descSets.at(i),j,0,i,DescriptorType::eStorageBuffer,nullptr,&descBuffInfos.at(p)});
+        }
+      }
+    }
+  }
+  this->dev->updateDescriptorSets(writeDescSets,nullptr);
+}
+
+void stdEng::createCommandBuffer(){
+  CommandPoolCreateInfo cmdPoolInfo(CommandPoolCreateFlags(),this->queueFamIndex);
+  this->cmdPoolInfo=&cmdPoolInfo;
+  CommandPool cmdPool=this->dev->createCommandPool(cmdPoolInfo);
+  this->cmdPool=&cmdPool;
+  CommandBufferAllocateInfo cmdBuffAllocInfo(cmdPool,CommandBufferLevel::ePrimary,1);
+  this->cmdBuffAllocInfo=&cmdBuffAllocInfo;
+  vector<CommandBuffer> cmdBuffs=this->dev->allocateCommandBuffers(cmdBuffAllocInfo);
+  for(CommandBuffer cmdbuff:cmdBuffs) this->cmdBuffs.push_back(&cmdbuff);
+}
+
+void stdEng::sendCommand(){
+  CommandBufferBeginInfo cmdBuffBeginInfo(CommandBufferUsageFlagBits::eOneTimeSubmit);
+  CommandBuffer cmdBuff=*this->cmdBuffs.front();
+  cmdBuff.begin(cmdBuffBeginInfo);
+  cmdBuff.bindPipeline(PipelineBindPoint::eCompute,*this->pipe);
+  vector<DescriptorSet> realDescSets;
+  for(DescriptorSet* descset:this->descSets) realDescSets.push_back(*descset);
+  cmdBuff.bindDescriptorSets(PipelineBindPoint::eCompute,*this->pipeLay,0,realDescSets,{});
+  cmdBuff.dispatch(this->width,this->height,this->depth);
+  cmdBuff.end();
+}
+
+void stdEng::waitFence(){
+  Queue queue=this->dev->getQueue(this->queueFamIndex, 0);
+  this->queue=&queue;
+  Fence fence=this->dev->createFence(vk::FenceCreateInfo());
+  this->fence=&fence;
+  SubmitInfo submitInfo(0,nullptr,nullptr,1,this->cmdBuffs.front());
+  this->submitInfo=&submitInfo;
+  queue.submit({ submitInfo }, fence);
+  Result waitFenceRes=this->dev->waitForFences({ fence },true,this->time);
+  this->waitFenceRes=&waitFenceRes;
 }
 
 //metode utama untuk menjalankan semua fungsi sebelumnya
@@ -250,15 +316,27 @@ void stdEng::run() {
   this->createDescriptorSetLayout();
   this->createPipelineLayout();
   this->createPipeline();
+  this->createDescriptorPool();
+  this->allocateDescriptorSet();
+  this->createCommandBuffer();
+  this->sendCommand();
+  this->waitFence();
+
 }
 
 //destructornya ini mah
-
 stdEng::~stdEng() {
-  for (Buffer* buff:this->inBuffs) this->dev->destroyBuffer(*buff);
-  for (Buffer* buff:this->outBuffs) this->dev->destroyBuffer(*buff);
-  for (DeviceMemory* mem:this->inMems) this->dev->freeMemory(*mem);
-  for (DeviceMemory* mem:this->outMems)this->dev->freeMemory(*mem);
+  this->dev->destroyFence(*this->fence);
+  this->dev->resetCommandPool(*this->cmdPool);
+  this->dev->destroyDescriptorSetLayout(*this->descSetLay);
+  this->dev->destroyPipelineLayout(*this->pipeLay);
+  this->dev->destroyShaderModule(*this->shadMod);
+  this->dev->destroyDescriptorPool(*this->descPool);
+  this->dev->destroyCommandPool(*this->cmdPool);
+  for(DeviceMemory* mem:this->inMems)this->dev->freeMemory(*mem);
+  for(DeviceMemory* mem:this->outMems)this->dev->freeMemory(*mem);
+  for(Buffer* buff:this->inBuffs)this->dev->destroyBuffer(*buff);
+  for(Buffer* buff:this->outBuffs)this->dev->destroyBuffer(*buff);
   this->dev->destroy();
   this->inst->destroy();
 }

@@ -4,6 +4,9 @@ project(vkmincomp)
 
 find_package(Vulkan)
 
-add_library(${PROJECT_NAME} SHARED src/vkmincomp.cxx)
+
+#uncomment salah satu
+#add_library(${PROJECT_NAME} SHARED src/vkmincomp.cxx)
+#add_library(${PROJECT_NAME} STATIC src/vkmincomp.cxx)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
