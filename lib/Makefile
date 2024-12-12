@@ -136,29 +136,29 @@ vkmincomp/fast:
 	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/vkmincomp.dir/build.make lib/CMakeFiles/vkmincomp.dir/build
 .PHONY : vkmincomp/fast
 
-src/vkmincomp.o: src/vkmincomp.cxx.o
-.PHONY : src/vkmincomp.o
+src/stdEng.o: src/stdEng.cxx.o
+.PHONY : src/stdEng.o
 
 # target to build an object file
-src/vkmincomp.cxx.o:
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/vkmincomp.dir/build.make lib/CMakeFiles/vkmincomp.dir/src/vkmincomp.cxx.o
-.PHONY : src/vkmincomp.cxx.o
+src/stdEng.cxx.o:
+	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/vkmincomp.dir/build.make lib/CMakeFiles/vkmincomp.dir/src/stdEng.cxx.o
+.PHONY : src/stdEng.cxx.o
 
-src/vkmincomp.i: src/vkmincomp.cxx.i
-.PHONY : src/vkmincomp.i
+src/stdEng.i: src/stdEng.cxx.i
+.PHONY : src/stdEng.i
 
 # target to preprocess a source file
-src/vkmincomp.cxx.i:
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/vkmincomp.dir/build.make lib/CMakeFiles/vkmincomp.dir/src/vkmincomp.cxx.i
-.PHONY : src/vkmincomp.cxx.i
+src/stdEng.cxx.i:
+	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/vkmincomp.dir/build.make lib/CMakeFiles/vkmincomp.dir/src/stdEng.cxx.i
+.PHONY : src/stdEng.cxx.i
 
-src/vkmincomp.s: src/vkmincomp.cxx.s
-.PHONY : src/vkmincomp.s
+src/stdEng.s: src/stdEng.cxx.s
+.PHONY : src/stdEng.s
 
 # target to generate assembly for a file
-src/vkmincomp.cxx.s:
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/vkmincomp.dir/build.make lib/CMakeFiles/vkmincomp.dir/src/vkmincomp.cxx.s
-.PHONY : src/vkmincomp.cxx.s
+src/stdEng.cxx.s:
+	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/vkmincomp.dir/build.make lib/CMakeFiles/vkmincomp.dir/src/stdEng.cxx.s
+.PHONY : src/stdEng.cxx.s
 
 # Help Target
 help:
@@ -169,9 +169,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... vkmincomp"
-	@echo "... src/vkmincomp.o"
-	@echo "... src/vkmincomp.i"
-	@echo "... src/vkmincomp.s"
+	@echo "... src/stdEng.o"
+	@echo "... src/stdEng.i"
+	@echo "... src/stdEng.s"
 .PHONY : help
 
 

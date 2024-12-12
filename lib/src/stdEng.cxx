@@ -2,8 +2,6 @@
 #include <cstdint>
 #include <fstream>
 #include <iostream>
-#include <vulkan/vulkan_enums.hpp>
-#include <vulkan/vulkan_structs.hpp>
 
 using namespace std;
 using namespace vkmincomp;
@@ -206,6 +204,7 @@ void stdEng::createPipelineLayout() {
 }
 
 //ini sebenarnya objek utama yang harus ada,wrapper dari semua atribut yang akan dikirim ke shader.
+//kalo ga salah:v
 void stdEng::createPipeline(){
   PipelineShaderStageCreateInfo pipeShadStagInfo(PipelineShaderStageCreateFlags(),
       ShaderStageFlagBits::eCompute,*(this->shadMod),this->entryPoint);
@@ -266,6 +265,7 @@ void stdEng::allocateDescriptorSet(){
       for(uint32_t i=0;i<IOSetOffset;++i){
         for(uint32_t j=0;j<bindings.at(i);++j){
           writeDescSets.push_back({descSets.at(i),j,0,i,DescriptorType::eStorageBuffer,nullptr,&descBuffInfos.at(p)});
+          ++p;
         }
       }
     }
