@@ -8,10 +8,10 @@ using namespace vkmincomp;
 
 // metode public
 //constructor utama dan satu satunya yang otomatis membuat instance
-stdEng::stdEng(char* appname, uint32_t appvers, char* engname, uint32_t engvers) {
+stdEng::stdEng(char* appname,uint32_t appvers,char* engname,uint32_t engvers) {
   uint32_t apivers=enumerateInstanceVersion();
-  ApplicationInfo appInfo(appname, appvers, engname, engvers, apivers);
-  InstanceCreateInfo instInfo({}, &appInfo, 0, {}, 0, {});
+  ApplicationInfo appInfo(appname,appvers,engname,engvers, apivers);
+  InstanceCreateInfo instInfo({},&appInfo,0,{}, 0, {});
   this->inst=new Instance(createInstance(instInfo));
 }
 
@@ -21,12 +21,12 @@ void stdEng::setPriorities(float priorities) {
 }
 
 //untuk mengatur inputnya
-void stdEng::setInputs(vector<vector<void*>> inputs, vector<size_t> size) {
+void stdEng::setInputs(vector<vector<void*>> inputs,vector<size_t> size) {
   this->inputs=inputs;
   this->insizes=size;
 }
 
-void stdEng::setOutputs(vector<vector<void*>> outputs, vector<size_t> size) {
+void stdEng::setOutputs(vector<vector<void*>> outputs,vector<size_t> size) {
   this->outputs=outputs;
   this->outsizes=size;
 }
@@ -64,12 +64,13 @@ void stdEng::createDevice() {
   }
   this->physdev=new PhysicalDevice(physdevs[0]);
   vector<QueueFamilyProperties> qFamProps=this->physdev->getQueueFamilyProperties();
-  auto qFamProp=find_if(qFamProps.begin(), qFamProps.end(), [](QueueFamilyProperties qFamPropsT){
+  auto qFamProp=find_if(qFamProps.begin(),qFamProps.end(),[](QueueFamilyProperties qFamPropsT){
     return qFamPropsT.queueFlags & QueueFlagBits::eCompute;
     });
-  this->queueFamIndex=distance(qFamProps.begin(), qFamProp);
-  DeviceQueueCreateInfo devQInfo(DeviceQueueCreateFlags(), this->queueFamIndex, 1, &this->priorities);
-  DeviceCreateInfo devInfo({}, devQInfo);
+  this->queueFamIndex=distance(qFamProps.begin(),qFamProp);
+  DeviceQueueCreateInfo devQInfo(DeviceQueueCreateFlags(),this->queueFamIndex,1,&this->priorities);
+  DeviceCreateInfo devInfo({},devQInfo);
+  this->devInfo=&devInfo;
   Device dev=physdev->createDevice(devInfo);
   this->dev =&dev;
 }
@@ -114,7 +115,7 @@ void stdEng::allocateMemory() {
   PhysicalDeviceMemoryProperties heapMemProp=this->physdev->getMemoryProperties();
   DeviceSize heapSize=uint32_t(~0);
   uint32_t heapIndex=uint32_t(~0);
-  for (uint32_t i=0; i < heapMemProp.memoryTypeCount; ++i) {
+  for (uint32_t i=0;i < heapMemProp.memoryTypeCount; ++i) {
     if ((heapMemProp.memoryTypes[i].propertyFlags & MemoryPropertyFlagBits::eHostVisible) &&
         (heapMemProp.memoryTypes[i].propertyFlags & MemoryPropertyFlagBits::eHostCoherent)) {
       heapSize=heapMemProp.memoryHeaps[i].size;
@@ -122,17 +123,17 @@ void stdEng::allocateMemory() {
       break;
     }
   }
-  if (heapIndex == uint32_t(~0)) {
+  if (heapIndex==uint32_t(~0)) {
     throw runtime_error("No heap found");
   }
   for (MemoryRequirements* inMemReq:this->inMemReqs) {
-    MemoryAllocateInfo inMemAllocInfo(inMemReq->size, heapIndex);
+    MemoryAllocateInfo inMemAllocInfo(inMemReq->size,heapIndex);
     this->inMemAllocInfos.push_back(&inMemAllocInfo);
     DeviceMemory inmem=this->dev->allocateMemory(inMemAllocInfo);
     this->inMems.push_back(&inmem);
   }
   for (MemoryRequirements* outMemReq:this->outMemReqs) {
-    MemoryAllocateInfo outMemAllocInfo(outMemReq->size, heapIndex);
+    MemoryAllocateInfo outMemAllocInfo(outMemReq->size,heapIndex);
     this->outMemAllocInfos.push_back(&outMemAllocInfo);
     DeviceMemory outmem=this->dev->allocateMemory(outMemAllocInfo);
     this->outMems.push_back(&outmem);
@@ -140,26 +141,26 @@ void stdEng::allocateMemory() {
 }
 
 
-//ini untuk mengisi buffer inputnya, yah semuanya butuh loop karena make vector
-void stdEng::fillInputs() {
-  for (size_t i=0; i < this->inputs.size(); ++i) {
-    void* inPtr=this->dev->mapMemory(*this->inMems.at(i), 0, this->insizes.at(i));
-    memcpy(inPtr, this->inputs.at(i).data(), this->insizes.at(i));
+//ini untuk mengisi buffer inputnya,yah semuanya butuh loop karena make vector
+void stdEng::fillInputs(){
+  for (size_t i=0;i<this->inputs.size();++i){
+    void* inPtr=this->dev->mapMemory(*this->inMems.at(i),0,this->insizes.at(i));
+    memcpy(inPtr,this->inputs.at(i).data(),this->insizes.at(i));
     this->dev->unmapMemory(*this->inMems.at(i));
   }
 }
 
 //untuk memuat shader dari file
-void stdEng::loadShader() {
+void stdEng::loadShader(){
   vector<char> shaderRaw;
-  ifstream shaderFile(this->filepath, ios::ate | ios::binary);
-  if (!shaderFile) {
+  ifstream shaderFile(this->filepath,ios::ate|ios::binary);
+  if (!shaderFile){
     throw runtime_error("Failed to open shader file");
   }
   size_t shaderSize=shaderFile.tellg();
   shaderFile.seekg(0);
   shaderRaw.resize(shaderSize);
-  shaderFile.read(shaderRaw.data(), shaderSize);
+  shaderFile.read(shaderRaw.data(),shaderSize);
   shaderFile.close();
 
   ShaderModuleCreateInfo shadModInfo(ShaderModuleCreateFlags(),shaderSize,
@@ -171,11 +172,11 @@ void stdEng::loadShader() {
 
 
 //pembuatan descriptor set layoutnya untuk binding ke shader
-void stdEng::createDescriptorSetLayout() {
+void stdEng::createDescriptorSetLayout(){
   uint32_t sumBind=0;
-  for (uint32_t setI=0; setI < this->bindings.size(); ++setI) {
+  for(uint32_t setI=0;setI<this->bindings.size();++setI) {
     sumBind += this->bindings.at(setI);
-    for (uint32_t bindI=0; bindI < this->bindings.at(setI); ++bindI) {
+    for (uint32_t bindI=0;bindI<this->bindings.at(setI);++bindI) {
       DescriptorSetLayoutBinding descSetLayBind(bindI,DescriptorType::eStorageBuffer,
         setI,ShaderStageFlagBits::eCompute);
       this->descSetLayBinds.push_back(&descSetLayBind);
@@ -193,11 +194,11 @@ void stdEng::createDescriptorSetLayout() {
   this->descSetLay=&descSetLay;
 }
 
-/*ini untuk mengatur layout dari pipelinenya, vulkan memag verbose
+/*ini untuk mengatur layout dari pipelinenya,vulkan memag verbose
  * tapi disitulah keunggulannya(free control)
  */
 void stdEng::createPipelineLayout() {
-  PipelineLayoutCreateInfo pipeLayInfo(PipelineLayoutCreateFlags(), *this->descSetLay);
+  PipelineLayoutCreateInfo pipeLayInfo(PipelineLayoutCreateFlags(),*this->descSetLay);
   PipelineLayout pipeLay=this->dev->createPipelineLayout(pipeLayInfo);
   this->pipeLayInfo=&pipeLayInfo;
   this->pipeLay=&pipeLay;
@@ -218,7 +219,7 @@ void stdEng::createPipeline(){
 
 //membuat descriptor pool
 void stdEng::createDescriptorPool(){
-  /*param kedua adalah jumlah setiap descriptor per tipe. karena tipenya disini hanya satu, maka
+  /*param kedua adalah jumlah setiap descriptor per tipe. karena tipenya disini hanya satu,maka
    * ini adalah jumlah total binding yang ada
    */
   DescriptorPoolSize descPoolSize(DescriptorType::eStorageBuffer,this->sumBind);
@@ -262,13 +263,11 @@ void stdEng::allocateDescriptorSet(){
   }
   else{
     for(uint32_t i=0;i<IOSetOffset;++i){
-      for(uint32_t i=0;i<IOSetOffset;++i){
-        for(uint32_t j=0;j<bindings.at(i);++j){
-          writeDescSets.push_back({descSets.at(i),j,0,i,DescriptorType::eStorageBuffer,nullptr,&descBuffInfos.at(p)});
-          ++p;
+      for(uint32_t j=0;j<bindings.at(i);++j){
+        writeDescSets.push_back({descSets.at(i),j,0,i,DescriptorType::eStorageBuffer,nullptr,&descBuffInfos.at(p)});
+        ++p;
         }
       }
-    }
   }
   this->dev->updateDescriptorSets(writeDescSets,nullptr);
 }
@@ -297,20 +296,46 @@ void stdEng::sendCommand(){
 }
 
 void stdEng::waitFence(){
-  Queue queue=this->dev->getQueue(this->queueFamIndex, 0);
+  Queue queue=this->dev->getQueue(this->queueFamIndex,0);
   this->queue=&queue;
-  Fence fence=this->dev->createFence(vk::FenceCreateInfo());
+  Fence fence=this->dev->createFence(FenceCreateInfo());
   this->fence=&fence;
   SubmitInfo submitInfo(0,nullptr,nullptr,1,this->cmdBuffs.front());
   this->submitInfo=&submitInfo;
-  queue.submit({ submitInfo }, fence);
+  queue.submit({ submitInfo },fence);
   Result waitFenceRes=this->dev->waitForFences({ fence },true,this->time);
   this->waitFenceRes=&waitFenceRes;
 }
 
 //metode utama untuk menjalankan semua fungsi sebelumnya
 void stdEng::run() {
+  if(!(this->debugMode==DebugMode::NO)){
+    cout<<"mulai membuat device dengan instance"<<endl;
+    if(this->debugMode==DebugMode::VERBOSE){
+      cout<<"\tApplicationInfo"<<endl;
+      cout<<"\t\t"<<this->appInfo->pApplicationName<<","<<endl;
+      cout<<"\t\t"<<this->appInfo->applicationVersion<<","<<endl;
+      cout<<"\t\t"<<this->appInfo->pEngineName<<","<<endl;
+      cout<<"\t\t"<<this->appInfo->engineVersion<<","<<endl;
+      cout<<"\tInstanceCreateInfo"<<endl;
+      cout<<"\t\t"<<to_string(this->instInfo->flags)<<","<<endl;
+      cout<<"\t\t"<<this->instInfo->enabledLayerCount<<","<<endl;
+      cout<<"\t\t"<<this->instInfo->ppEnabledLayerNames<<","<<endl;
+      cout<<"\t\t"<<this->instInfo->enabledExtensionCount<<","<<endl;
+      cout<<"\t\t"<<this->instInfo->ppEnabledExtensionNames<<","<<endl;
+      cout<<endl;
+    }
+  }
   this->createDevice();
+
+  if(!(this->debugMode==DebugMode::NO)){
+    cout<<"device berhasil dibuat!"<<endl;
+    if(this->debugMode==DebugMode::VERBOSE){
+      cout<<"\tCreateInfo"<<endl;
+      cout<<"\t\t"<<to_string(this->devInfo->flags)<<","<<endl;
+      cout<<"\t\t"<<this->devInfo->pEnabledFeatures<<","<<endl;
+    }
+  }
   this->createBuffer();
   this->fillInputs();
   this->createDescriptorSetLayout();

@@ -25,9 +25,12 @@ namespace vkmincomp {
       DebugMode debugMode=DebugMode::NO;
       uint32_t width,height,depth;
 
+      ApplicationInfo* appInfo;
+      InstanceCreateInfo* instInfo;
       Instance* inst;
       PhysicalDevice* physdev;
       uint32_t queueFamIndex;
+      DeviceCreateInfo* devInfo;
       Device* dev;
       vector<BufferCreateInfo*> inBuffInfos, outBuffInfos;
       vector<Buffer*> inBuffs, outBuffs;
