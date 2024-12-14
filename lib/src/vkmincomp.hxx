@@ -30,6 +30,7 @@ namespace vkmincomp {
       Instance* inst;
       PhysicalDevice* physdev;
       uint32_t queueFamIndex;
+      DeviceQueueCreateInfo* devQInfo;
       DeviceCreateInfo* devInfo;
       Device* dev;
       vector<BufferCreateInfo*> inBuffInfos, outBuffInfos;

@@ -7,7 +7,16 @@ using namespace std;
 using namespace vkmincomp;
 
 // metode public
-//constructor utama dan satu satunya yang otomatis membuat instance
+/* constructor utama dan satu satunya yang otomatis membuat instance
+ *
+ * @param appname Nama Aplikasi yang akan dipakaidi Instancenya
+ * @paeam appvers Versi Aplikasinya
+ * @param engname Nama Engine yang akan dipakai;
+ * @param engvers Versi Enginenya
+ *
+ * apivers adalah versi api yang akan digunakan, biar otomatis kompatible, make dari versi
+ * tertingginya aja deh
+ */
 stdEng::stdEng(char* appname,uint32_t appvers,char* engname,uint32_t engvers) {
   uint32_t apivers=enumerateInstanceVersion();
   ApplicationInfo appInfo(appname,appvers,engname,engvers, apivers);
@@ -15,39 +24,77 @@ stdEng::stdEng(char* appname,uint32_t appvers,char* engname,uint32_t engvers) {
   this->inst=new Instance(createInstance(instInfo));
 }
 
-//ini untuk mengatur prioritas antrian untuk logical device yang akan dibuat
+/* ini untuk mengatur prioritas antrian untuk logical device yang akan dibuat
+ *
+ * Sebenernya seharusnya array, tapi karena queuenya cuma satu jadi ya langsung aja set
+ */
 void stdEng::setPriorities(float priorities) {
   this->priorities=priorities;
 }
 
-//untuk mengatur inputnya
+/* Untuk mengatur inputnya
+ *
+ * @param inputs vector yang berisi vector dari inputnya
+ *   karena mau dibuat generic, jadi tipe data disini diatur ke void
+ * @param size ini vector yang setiap elemennya menghold informasi total ukuran dari masing
+ *   ukuran dari setiap input
+ *
+ * Misalnya, kalo punya dua input berupa vector<int> bulat dan vector<float> desimal, maka
+ * vector<size_t> sizenya memiliki elemen bulat.size()*size_of(int) dan
+ * desimal.size()*size_of(float)
+ */
 void stdEng::setInputs(vector<vector<void*>> inputs,vector<size_t> size) {
   this->inputs=inputs;
   this->insizes=size;
 }
 
+//sama seperti di input
 void stdEng::setOutputs(vector<vector<void*>> outputs,vector<size_t> size) {
   this->outputs=outputs;
   this->outsizes=size;
 }
 
-//mengatur binding di shader
+/* Mengatur binding di shader
+ *
+ * Menggunakan pustaka ini berarti kamu harus mmengelompokan set&binding dari input bersama sama
+ * sebelum akhirnya sst&binding output
+ *
+ * @param bindings size dari bindings adalah jumlah set, sedangkan elemennya adalah jumlah binding
+ *   di setiap setnya
+ * @param IOSetOffset ini adalah nilai  offset dari set output terhadap input
+ *   misalnya, kalo output berada di set ke 5 maka IOSetOffsetnya 5
+ * @param IOBindingOffset sama seperti sebelumnya, kalau outputnya berada di binding ke n
+ *   maka offsetnya juga harus n
+ */
 void stdEng::setBinding(vector<uint32_t> bindings,uint32_t IOSetOffset,uint32_t IOBindingOffset) {
   this->bindings=bindings;
   this->IOSetOffset=IOSetOffset;
   this->IOBindingOffset=IOBindingOffset;
 }
 
-//mengatur path dimana shader berada
+/* shader yang digunakan setauku sih SPIR-V yang biasanya dikompilasi dari hlsl atau glsl
+ *
+ * @param filepath path dari file shader SPIR-V berada, relatif terhadap tempat dimana kelas ini
+ *   digunakan
+ */
 void stdEng::setShaderFile(char* filepath) {
   this->filepath=filepath;
 }
 
-//set nama fungsi utama atau tempat masuknya di shader
+/* set nama fungsi utama atau tempat masuknya di shader
+ *
+ * di shader kan bisa dikasih banyak fungsi tuh, jadi hrus tau fungsi utamanya dimana.
+ * 
+ * @param entryPoint mama dari fungsi sebagai titik masuk di shader
+ */
 void stdEng::setEntryPoint(char* entryPoint){
   this->entryPoint=entryPoint;
 }
 
+/* Ini untuk menentukan maksimum waktu(timeout) untuk menunggu hasil dari pemrosesan gpunya.
+ * 
+ * @param time timeout menunggu hasil pemrosesan gpu
+ */
 void stdEng::setWaitFenceFor(uint64_t time){
   this->time=time;
 }
@@ -69,6 +116,7 @@ void stdEng::createDevice() {
     });
   this->queueFamIndex=distance(qFamProps.begin(),qFamProp);
   DeviceQueueCreateInfo devQInfo(DeviceQueueCreateFlags(),this->queueFamIndex,1,&this->priorities);
+  this->devQInfo=&devQInfo;
   DeviceCreateInfo devInfo({},devQInfo);
   this->devInfo=&devInfo;
   Device dev=physdev->createDevice(devInfo);
@@ -313,16 +361,20 @@ void stdEng::run() {
     cout<<"mulai membuat device dengan instance"<<endl;
     if(this->debugMode==DebugMode::VERBOSE){
       cout<<"\tApplicationInfo"<<endl;
-      cout<<"\t\t"<<this->appInfo->pApplicationName<<","<<endl;
-      cout<<"\t\t"<<this->appInfo->applicationVersion<<","<<endl;
-      cout<<"\t\t"<<this->appInfo->pEngineName<<","<<endl;
-      cout<<"\t\t"<<this->appInfo->engineVersion<<","<<endl;
+      cout<<"\t\tNama Aplikasi="<<this->appInfo->pApplicationName<<","<<endl;
+      cout<<"\t\tVersiAplikasi="<<this->appInfo->applicationVersion<<","<<endl;
+      cout<<"\t\tNama Engine="<<this->appInfo->pEngineName<<","<<endl;
+      cout<<"\t\tVersi Engine="<<this->appInfo->engineVersion<<","<<endl;
+      cout<<"\t\tVersi Api="<<this->appInfo->apiVersion<<","<<endl;
       cout<<"\tInstanceCreateInfo"<<endl;
-      cout<<"\t\t"<<to_string(this->instInfo->flags)<<","<<endl;
-      cout<<"\t\t"<<this->instInfo->enabledLayerCount<<","<<endl;
-      cout<<"\t\t"<<this->instInfo->ppEnabledLayerNames<<","<<endl;
-      cout<<"\t\t"<<this->instInfo->enabledExtensionCount<<","<<endl;
-      cout<<"\t\t"<<this->instInfo->ppEnabledExtensionNames<<","<<endl;
+      cout<<"\t\tInstance Flags="<<to_string(this->instInfo->flags)<<","<<endl;
+      cout<<"\t\tJumlah Layer Aktif="<<this->instInfo->enabledLayerCount<<","<<endl;
+      cout<<"\t\tLayer Aktif="<<endl;
+      for(uint32_t i=0;i<this->instInfo->enabledLayerCount;++i)
+        cout<<"\t\t\t"<<this->instInfo->ppEnabledLayerNames[i]<<endl;
+      cout<<"\t\t"<<this->instInfo->enabledExtensionCount<<endl;
+      for(uint32_t i=0;i<this->instInfo->enabledExtensionCount;++i)
+         cout<<"\t\t\t"<<this->instInfo->ppEnabledExtensionNames[i]<<","<<endl;
       cout<<endl;
     }
   }
@@ -332,11 +384,26 @@ void stdEng::run() {
     cout<<"device berhasil dibuat!"<<endl;
     if(this->debugMode==DebugMode::VERBOSE){
       cout<<"\tCreateInfo"<<endl;
-      cout<<"\t\t"<<to_string(this->devInfo->flags)<<","<<endl;
-      cout<<"\t\t"<<this->devInfo->pEnabledFeatures<<","<<endl;
+      cout<<"\t\tDevice Flags"<<to_string(this->devInfo->flags)<<","<<endl;
+      cout<<"\t\tDevice Queue Flags"<<to_string(this->devQInfo->flags)<<","<<endl;
+      cout<<"\t\t Queue Family Index"<<this->devQInfo->queueFamilyIndex<<","<<endl;
+      cout<<"\t\tJumlah Queue="<<this->devQInfo->queueCount<<endl;
+      for(uint32_t i=0;i<this->devQInfo->queueCount;++i)
+        cout<<"\t\t\t"<<this->devQInfo->pQueuePriorities[i]<<","<<endl;
     }
+    cout<<"mulai membuat Buffer"<<endl;
   }
   this->createBuffer();
+  if(!(this->debugMode==DebugMode::NO)){
+    cout<<"Buffer berhasil dibuat!"<<endl;
+    if(this->debugMode==DebugMode::VERBOSE){
+      cout<<"\tInput Buffer Infos"<<endl;
+      for(BufferCreateInfo* buffInfo:this->inBuffInfos){
+        //cout<<"\t\t"<<buffInfo-><<endl;
+        cout<<endl;
+      }
+    }
+  }
   this->fillInputs();
   this->createDescriptorSetLayout();
   this->createPipelineLayout();
