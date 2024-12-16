@@ -193,9 +193,7 @@ void stdEng::fillInputs(){
 void stdEng::loadShader(){
   vector<char> shaderRaw;
   ifstream shaderFile(this->filepath,ios::ate|ios::binary);
-  if (!shaderFile){
-    throw runtime_error("Failed to open shader file");
-  }
+  if (!shaderFile) throw runtime_error("Failed to open shader file");
   size_t shaderSize=shaderFile.tellg();
   shaderFile.seekg(0);
   shaderRaw.resize(shaderSize);
