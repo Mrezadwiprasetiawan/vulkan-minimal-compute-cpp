@@ -7,15 +7,14 @@ using namespace std;
 using namespace vkmincomp;
 
 // metode public
-/* constructor utama dan satu satunya yang otomatis membuat instance
+/* the one and only on constructor to create an instance
  *
- * @param appname Nama Aplikasi yang akan dipakaidi Instancenya
- * @paeam appvers Versi Aplikasinya
- * @param engname Nama Engine yang akan dipakai;
- * @param engvers Versi Enginenya
+ * @param appname The name of your Application Instance
+ * @paeam appvers Version of your Application
+ * @param engname The name of your Engine;
+ * @param engvers Version of your Application
  *
- * apivers adalah versi api yang akan digunakan, biar otomatis kompatible, make dari versi
- * tertingginya aja deh
+ * apivers use available and the higher version API of the vulkan driver
  */
 stdEng::stdEng(char* appname,uint32_t appvers,char* engname,uint32_t engvers) {
   uint32_t apivers=enumerateInstanceVersion();
@@ -24,47 +23,39 @@ stdEng::stdEng(char* appname,uint32_t appvers,char* engname,uint32_t engvers) {
   this->inst=new Instance(createInstance(instInfo));
 }
 
-/* ini untuk mengatur prioritas antrian untuk logical device yang akan dibuat
- *
- * Sebenernya seharusnya array, tapi karena queuenya cuma satu jadi ya langsung aja set
+/* Actually Priorities are array but we only use 1 device
  */
-void stdEng::setPriorities(float priorities) {
-  this->priorities=priorities;
+void stdEng::setPriorities(float priority) {
+  this->priorities=priority;
 }
 
-/* Untuk mengatur inputnya
- *
- * @param inputs vector yang berisi vector dari inputnya
- *   karena mau dibuat generic, jadi tipe data disini diatur ke void
- * @param size ini vector yang setiap elemennya menghold informasi total ukuran dari masing
- *   ukuran dari setiap input
- *
- * Misalnya, kalo punya dua input berupa vector<int> bulat dan vector<float> desimal, maka
- * vector<size_t> sizenya memiliki elemen bulat.size()*size_of(int) dan
- * desimal.size()*size_of(float)
+/* For inputs stuff
+ * 
+ * @param inputs vector from vector of the input arrays
+ * @param size total size of the each vector in byte
  */
 void stdEng::setInputs(vector<vector<void*>> inputs,vector<size_t> size) {
   this->inputs=inputs;
   this->insizes=size;
 }
 
-//sama seperti di input
+// Same as inputs
 void stdEng::setOutputs(vector<vector<void*>> outputs,vector<size_t> size) {
   this->outputs=outputs;
   this->outsizes=size;
 }
 
-/* Mengatur binding di shader
+ /* Set up binding in the shader
  *
- * Menggunakan pustaka ini berarti kamu harus mmengelompokan set&binding dari input bersama sama
- * sebelum akhirnya sst&binding output
+ * Using this library means you must group the set & binding of inputs together
+ * before finally setting & binding the output.
  *
- * @param bindings size dari bindings adalah jumlah set, sedangkan elemennya adalah jumlah binding
- *   di setiap setnya
- * @param IOSetOffset ini adalah nilai  offset dari set output terhadap input
- *   misalnya, kalo output berada di set ke 5 maka IOSetOffsetnya 5
- * @param IOBindingOffset sama seperti sebelumnya, kalau outputnya berada di binding ke n
- *   maka offsetnya juga harus n
+ * @param bindings The size of the bindings is the number of sets, while the elements represent
+ *   the number of bindings in each set.
+ * @param IOSetOffset This is the offset value of the output set relative to the input.
+ *   For example, if the output is in set 5, the IOSetOffset should be 5.
+ * @param IOBindingOffset Similar to the previous one, if the output is in binding
+ *   n, the offset should also be n.
  */
 void stdEng::setBinding(vector<uint32_t> bindings,uint32_t IOSetOffset,uint32_t IOBindingOffset) {
   this->bindings=bindings;
@@ -72,28 +63,26 @@ void stdEng::setBinding(vector<uint32_t> bindings,uint32_t IOSetOffset,uint32_t 
   this->IOBindingOffset=IOBindingOffset;
 }
 
-/* shader yang digunakan setauku sih SPIR-V yang biasanya dikompilasi dari hlsl atau glsl
+/* The shader used, as far as I know, is SPIR-V, which is usually compiled from HLSL or GLSL.
  *
- * @param filepath path dari file shader SPIR-V berada, relatif terhadap tempat dimana kelas ini
- *   digunakan
+ * @param filepath The path to the SPIR-V shader file, relative to where this class is used.
  */
 void stdEng::setShaderFile(char* filepath) {
   this->filepath=filepath;
 }
 
-/* set nama fungsi utama atau tempat masuknya di shader
+/* Set the name of the main function or entry point in the shader
+ * In shaders, you can have multiple functions, so you need to know where the main function is.
  *
- * di shader kan bisa dikasih banyak fungsi tuh, jadi hrus tau fungsi utamanya dimana.
- * 
- * @param entryPoint mama dari fungsi sebagai titik masuk di shader
+ * @param entryPoint The name of the function as the entry point in the shader.
  */
 void stdEng::setEntryPoint(char* entryPoint){
   this->entryPoint=entryPoint;
 }
 
-/* Ini untuk menentukan maksimum waktu(timeout) untuk menunggu hasil dari pemrosesan gpunya.
- * 
- * @param time timeout menunggu hasil pemrosesan gpu
+/* Iam using Fence for mark  if our calculation finish
+ *
+ * @param time timeout for waiting the fence
  */
 void stdEng::setWaitFenceFor(uint64_t time){
   this->time=time;
@@ -102,7 +91,8 @@ void stdEng::setWaitFenceFor(uint64_t time){
 
 
 //metode private
-//membuat logical device
+/* Create device
+ */
 void stdEng::createDevice() {
   vector<PhysicalDevice> physdevs=this->inst->enumeratePhysicalDevices();
   if (physdevs.empty()) {
@@ -123,7 +113,7 @@ void stdEng::createDevice() {
   this->dev =&dev;
 }
 
-//untuk pembuatan buffer karena inputnya vector jadi butuh loop
+//crrating buffers
 void stdEng::createBuffer() {
   for (size_t insize:this->insizes) {
     BufferCreateInfo inBuffInfo(
@@ -150,7 +140,7 @@ void stdEng::createBuffer() {
 }
 
 
-//untuk alokask memori untuk input dan output
+//Memory allocations
 void stdEng::allocateMemory() {
   for (Buffer* inbuff:this->inBuffs) {
     MemoryRequirements inMemReq=this->dev->getBufferMemoryRequirements(*inbuff);
@@ -189,7 +179,7 @@ void stdEng::allocateMemory() {
 }
 
 
-//ini untuk mengisi buffer inputnya,yah semuanya butuh loop karena make vector
+//fill the memories with our inputs data
 void stdEng::fillInputs(){
   for (size_t i=0;i<this->inputs.size();++i){
     void* inPtr=this->dev->mapMemory(*this->inMems.at(i),0,this->insizes.at(i));
@@ -198,7 +188,7 @@ void stdEng::fillInputs(){
   }
 }
 
-//untuk memuat shader dari file
+// load Spir-V shader
 void stdEng::loadShader(){
   vector<char> shaderRaw;
   ifstream shaderFile(this->filepath,ios::ate|ios::binary);
@@ -219,7 +209,7 @@ void stdEng::loadShader(){
 }
 
 
-//pembuatan descriptor set layoutnya untuk binding ke shader
+//Creating DescriptorSetLayout for binding to the Shader
 void stdEng::createDescriptorSetLayout(){
   uint32_t sumBind=0;
   for(uint32_t setI=0;setI<this->bindings.size();++setI) {
@@ -230,7 +220,7 @@ void stdEng::createDescriptorSetLayout(){
       this->descSetLayBinds.push_back(&descSetLayBind);
     }
   }
-  //menyimpan jumlah total binding karena nanti aka digunakan di descriptorpool size
+  //save the amount of the binding which used later
   this->sumBind=sumBind;
   vector<DescriptorSetLayoutBinding> descSetLayBinds2;
   for (DescriptorSetLayoutBinding* descSetLayBind:this->descSetLayBinds) {
@@ -242,9 +232,7 @@ void stdEng::createDescriptorSetLayout(){
   this->descSetLay=&descSetLay;
 }
 
-/*ini untuk mengatur layout dari pipelinenya,vulkan memag verbose
- * tapi disitulah keunggulannya(free control)
- */
+//Create Pipeline Layout
 void stdEng::createPipelineLayout() {
   PipelineLayoutCreateInfo pipeLayInfo(PipelineLayoutCreateFlags(),*this->descSetLay);
   PipelineLayout pipeLay=this->dev->createPipelineLayout(pipeLayInfo);
@@ -252,8 +240,7 @@ void stdEng::createPipelineLayout() {
   this->pipeLay=&pipeLay;
 }
 
-//ini sebenarnya objek utama yang harus ada,wrapper dari semua atribut yang akan dikirim ke shader.
-//kalo ga salah:v
+//Create Pipeline
 void stdEng::createPipeline(){
   PipelineShaderStageCreateInfo pipeShadStagInfo(PipelineShaderStageCreateFlags(),
       ShaderStageFlagBits::eCompute,*(this->shadMod),this->entryPoint);
@@ -265,14 +252,13 @@ void stdEng::createPipeline(){
   this->pipe=&pipe;
 }
 
-//membuat descriptor pool
+//Create Descriptor Pool
 void stdEng::createDescriptorPool(){
-  /*param kedua adalah jumlah setiap descriptor per tipe. karena tipenya disini hanya satu,maka
-   * ini adalah jumlah total binding yang ada
-   */
+  /* The second parameter is the number of descriptors per type. Since there is only one type
+   * here, this is the total number of bindings.
+  */
   DescriptorPoolSize descPoolSize(DescriptorType::eStorageBuffer,this->sumBind);
   this->descPoolSize=&descPoolSize;
-  //kayanya param kedua ini jumlah descriptor setnya TODO fix kalo salah nanti
   DescriptorPoolCreateInfo descPoolInfo(DescriptorPoolCreateFlags(),this->bindings.size(),
       descPoolSize);
   this->descPoolInfo=&descPoolInfo;
@@ -280,9 +266,8 @@ void stdEng::createDescriptorPool(){
   this->descPool=&descPool;
 }
 
-//alokasi descriptor set
+//DescriptorSet allocation
 void stdEng::allocateDescriptorSet(){
-  //param kedua hrusnya sih jumlah descriptor setnya jadi harus sama dengan jumlah total sst
   DescriptorSetAllocateInfo descSetAllocInfo(*(this->descPool),this->bindings.size(),
       this->descSetLay);
   this->descSetAllocInfo=&descSetAllocInfo;
@@ -320,6 +305,7 @@ void stdEng::allocateDescriptorSet(){
   this->dev->updateDescriptorSets(writeDescSets,nullptr);
 }
 
+//Commamd Buffer Creation
 void stdEng::createCommandBuffer(){
   CommandPoolCreateInfo cmdPoolInfo(CommandPoolCreateFlags(),this->queueFamIndex);
   this->cmdPoolInfo=&cmdPoolInfo;
@@ -331,6 +317,7 @@ void stdEng::createCommandBuffer(){
   for(CommandBuffer cmdbuff:cmdBuffs) this->cmdBuffs.push_back(&cmdbuff);
 }
 
+//Send Command with CommandBuffer
 void stdEng::sendCommand(){
   CommandBufferBeginInfo cmdBuffBeginInfo(CommandBufferUsageFlagBits::eOneTimeSubmit);
   CommandBuffer cmdBuff=*this->cmdBuffs.front();
@@ -343,6 +330,8 @@ void stdEng::sendCommand(){
   cmdBuff.end();
 }
 
+
+//wait gpu proccess with Fence to mark if finish
 void stdEng::waitFence(){
   Queue queue=this->dev->getQueue(this->queueFamIndex,0);
   this->queue=&queue;
@@ -355,56 +344,94 @@ void stdEng::waitFence(){
   this->waitFenceRes=&waitFenceRes;
 }
 
-//metode utama untuk menjalankan semua fungsi sebelumnya
+//metode public
+//the main method to running all previous methods
 void stdEng::run() {
   if(!(this->debugMode==DebugMode::NO)){
-    cout<<"mulai membuat device dengan instance"<<endl;
+    cout<<"Instance Created with:"<<endl;
     if(this->debugMode==DebugMode::VERBOSE){
       cout<<"\tApplicationInfo"<<endl;
-      cout<<"\t\tNama Aplikasi="<<this->appInfo->pApplicationName<<","<<endl;
-      cout<<"\t\tVersiAplikasi="<<this->appInfo->applicationVersion<<","<<endl;
-      cout<<"\t\tNama Engine="<<this->appInfo->pEngineName<<","<<endl;
-      cout<<"\t\tVersi Engine="<<this->appInfo->engineVersion<<","<<endl;
-      cout<<"\t\tVersi Api="<<this->appInfo->apiVersion<<","<<endl;
+      cout<<"\t\tApplication Name="<<this->appInfo->pApplicationName<<","<<endl;
+      cout<<"\t\tApplication Version="<<this->appInfo->applicationVersion<<","<<endl;
+      cout<<"\t\tEngine Name="<<this->appInfo->pEngineName<<","<<endl;
+      cout<<"\t\tEngine Version="<<this->appInfo->engineVersion<<","<<endl;
+      cout<<"\t\tApi Version used="<<this->appInfo->apiVersion<<","<<endl;
       cout<<"\tInstanceCreateInfo"<<endl;
       cout<<"\t\tInstance Flags="<<to_string(this->instInfo->flags)<<","<<endl;
-      cout<<"\t\tJumlah Layer Aktif="<<this->instInfo->enabledLayerCount<<","<<endl;
-      cout<<"\t\tLayer Aktif="<<endl;
+      cout<<"\t\tAmount of active layer="<<this->instInfo->enabledLayerCount<<","<<endl;
+      cout<<"\t\tActive layers"<<endl;
       for(uint32_t i=0;i<this->instInfo->enabledLayerCount;++i)
         cout<<"\t\t\t"<<this->instInfo->ppEnabledLayerNames[i]<<endl;
-      cout<<"\t\t"<<this->instInfo->enabledExtensionCount<<endl;
+      cout<<"\t\tAmount of active extensions"<<this->instInfo->enabledExtensionCount<<endl;
+      cout<<"\t\tActive extensions"<<endl;
       for(uint32_t i=0;i<this->instInfo->enabledExtensionCount;++i)
          cout<<"\t\t\t"<<this->instInfo->ppEnabledExtensionNames[i]<<","<<endl;
       cout<<endl;
     }
   }
-  this->createDevice();
 
   if(!(this->debugMode==DebugMode::NO)){
-    cout<<"device berhasil dibuat!"<<endl;
+    cout<<"Start Creating logical device with:"<<endl;
     if(this->debugMode==DebugMode::VERBOSE){
       cout<<"\tCreateInfo"<<endl;
       cout<<"\t\tDevice Flags"<<to_string(this->devInfo->flags)<<","<<endl;
       cout<<"\t\tDevice Queue Flags"<<to_string(this->devQInfo->flags)<<","<<endl;
       cout<<"\t\t Queue Family Index"<<this->devQInfo->queueFamilyIndex<<","<<endl;
-      cout<<"\t\tJumlah Queue="<<this->devQInfo->queueCount<<endl;
+      cout<<"\t\tQueue Count="<<this->devQInfo->queueCount<<endl;
+      cout<<"\\Queues"<<endl;
       for(uint32_t i=0;i<this->devQInfo->queueCount;++i)
         cout<<"\t\t\t"<<this->devQInfo->pQueuePriorities[i]<<","<<endl;
     }
-    cout<<"mulai membuat Buffer"<<endl;
+    cout<<endl;
   }
-  this->createBuffer();
+  this->createDevice();
+
   if(!(this->debugMode==DebugMode::NO)){
-    cout<<"Buffer berhasil dibuat!"<<endl;
+    cout<<"logical device created!"<<endl;
+    cout<<"Start creating buffers!"<<endl;
     if(this->debugMode==DebugMode::VERBOSE){
       cout<<"\tInput Buffer Infos"<<endl;
       for(BufferCreateInfo* buffInfo:this->inBuffInfos){
-        //cout<<"\t\t"<<buffInfo-><<endl;
+        cout<<"\t\tBuffer Create Flags="<<to_string(buffInfo->flags)<<endl;
+        cout<<"\t\tBuffer Size="<<buffInfo->size<<endl;
+        cout<<"\t\tBuffer Usage="<<to_string(buffInfo->usage)<<endl;
+        cout<<"\t\tBuffer Sharing mode="<<to_string(buffInfo->sharingMode)<<endl;
+        cout<<"\t\tQueue Family Index Count="<<buffInfo->queueFamilyIndexCount<<endl;
+        cout<<"\t\tQueue Family Indices"<<endl;
+        for(uint32_t i=0;i<buffInfo->queueFamilyIndexCount;++i)
+          cout<<"\t\t\t"<<buffInfo->pQueueFamilyIndices<<endl;
         cout<<endl;
       }
     }
+    cout<<endl;
+  }
+  this->createBuffer();
+
+  if(!(this->debugMode==DebugMode::NO)){
+    cout<<"Buffer created succesfully!"<<endl;
+    cout<<"Start filling Inputs memories"<<endl;
+    if(this->debugMode==DebugMode::VERBOSE){
+      if(this->inMems.size()!=this->inputs.size()){
+        cout<<"\tWarning! inputs and input memories vector has differ size"<<endl;
+        cout<<"\tThis mean you were wrongly pass inputs size"<<endl;
+      }
+      size_t minSize=inMems.size()>inputs.size()?inMems.size():inputs.size();
+      for(size_t i=0;i<minSize;++i){
+        cout<<"\tinput memory "<<i<<"will be filled by"<<endl;
+        cout<<"\tinput "<<i<<"in byte:"<<endl;
+        const char* inputBytes=reinterpret_cast<char*>(&inputs.at(i));
+        for(size_t j=0;j<this->insizes.at(i)/this->inputs.at(i).size();++i)
+          cout<<"\t\t"<<inputBytes[j];
+        cout<<endl;
+      }
+    }
+    cout<<endl;
   }
   this->fillInputs();
+  if(!(this->debugMode==DebugMode::NO)){
+    if(this->debugMode==DebugMode::VERBOSE){
+    }
+  }
   this->createDescriptorSetLayout();
   this->createPipelineLayout();
   this->createPipeline();
@@ -416,7 +443,7 @@ void stdEng::run() {
 
 }
 
-//destructornya ini mah
+//destructor
 stdEng::~stdEng() {
   this->dev->destroyFence(*this->fence);
   this->dev->resetCommandPool(*this->cmdPool);
