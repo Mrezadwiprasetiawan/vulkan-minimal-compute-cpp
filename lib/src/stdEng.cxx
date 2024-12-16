@@ -7,10 +7,10 @@ using namespace std;
 using namespace vkmincomp;
 
 // metode public
-/* the one and only on constructor to create an instance
+/* the one and only one constructor to create an instance
  *
  * @param appname The name of your Application Instance
- * @paeam appvers Version of your Application
+ * @param appvers Version of your Application
  * @param engname The name of your Engine;
  * @param engvers Version of your Application
  *
@@ -24,6 +24,7 @@ stdEng::stdEng(char* appname,uint32_t appvers,char* engname,uint32_t engvers) {
 }
 
 /* Actually Priorities are array but we only use 1 device
+ * @param priority priority for the device
  */
 void stdEng::setPriorities(float priority) {
   this->priorities=priority;
@@ -47,14 +48,14 @@ void stdEng::setOutputs(vector<vector<void*>> outputs,vector<size_t> size) {
 
  /* Set up binding in the shader
  *
- * Using this library means you must group the set & binding of inputs together
- * before finally setting & binding the output.
+ * Using this library means you must group the set&binding of inputs together
+ * before finally set&binding the outputs.
  *
  * @param bindings The size of the bindings is the number of sets, while the elements represent
  *   the number of bindings in each set.
  * @param IOSetOffset This is the offset value of the output set relative to the input.
- *   For example, if the output is in set 5, the IOSetOffset should be 5.
- * @param IOBindingOffset Similar to the previous one, if the output is in binding
+ *   For example, if the first outputs is in set 5, the IOSetOffset should be 5.
+ * @param IOBindingOffset Similar to the previous one, if the first output is in binding
  *   n, the offset should also be n.
  */
 void stdEng::setBinding(vector<uint32_t> bindings,uint32_t IOSetOffset,uint32_t IOBindingOffset) {
@@ -188,7 +189,7 @@ void stdEng::fillInputs(){
   }
 }
 
-// load Spir-V shader
+// load SPIR-V shader
 void stdEng::loadShader(){
   vector<char> shaderRaw;
   ifstream shaderFile(this->filepath,ios::ate|ios::binary);
