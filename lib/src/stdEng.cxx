@@ -31,7 +31,7 @@ void stdEng::setPriorities(float priority) {
 }
 
 /* For inputs stuff
- * 
+ *
  * @param inputs vector from vector of the input arrays
  * @param size total size of the each vector in byte
  */
@@ -88,6 +88,18 @@ void stdEng::setEntryPoint(char* entryPoint){
 void stdEng::setWaitFenceFor(uint64_t time){
   this->time=time;
 }
+
+/*
+ */
+DebugMode stdEng::getDebugMode(){
+  return this->debugMode;
+}
+
+/*
+ */
+void stdEng::setDebugMode(DebugMode debugMode){
+  this->debugMode=debugMode;
+}
 //akhir dari metode public
 
 
@@ -117,23 +129,15 @@ void stdEng::createDevice() {
 //crrating buffers
 void stdEng::createBuffer() {
   for (size_t insize:this->insizes) {
-    BufferCreateInfo inBuffInfo(
-      BufferCreateFlags(),
-      insize,
-      BufferUsageFlagBits::eStorageBuffer,
-      SharingMode::eExclusive
-    );
+    BufferCreateInfo inBuffInfo(BufferCreateFlags(),insize,BufferUsageFlagBits::eStorageBuffer,
+        SharingMode::eExclusive);
     this->inBuffInfos.push_back(&inBuffInfo);
     Buffer inbuff=this->dev->createBuffer(inBuffInfo);
     this->inBuffs.push_back(&inbuff);
   }
   for (size_t outsize:this->outsizes) {
-    BufferCreateInfo outBuffInfo(
-      BufferCreateFlags(),
-      outsize,
-      BufferUsageFlagBits::eStorageBuffer,
-      SharingMode::eExclusive
-    );
+    BufferCreateInfo outBuffInfo(BufferCreateFlags(),outsize,BufferUsageFlagBits::eStorageBuffer,
+      SharingMode::eExclusive);
     this->outBuffInfos.push_back(&outBuffInfo);
     Buffer outbuff=this->dev->createBuffer(outBuffInfo);
     this->outBuffs.push_back(&outbuff);
@@ -162,9 +166,7 @@ void stdEng::allocateMemory() {
       break;
     }
   }
-  if (heapIndex==uint32_t(~0)) {
-    throw runtime_error("No heap found");
-  }
+  if (heapIndex==uint32_t(~0)) throw runtime_error("No heap found");
   for (MemoryRequirements* inMemReq:this->inMemReqs) {
     MemoryAllocateInfo inMemAllocInfo(inMemReq->size,heapIndex);
     this->inMemAllocInfos.push_back(&inMemAllocInfo);
@@ -222,9 +224,8 @@ void stdEng::createDescriptorSetLayout(){
   //save the amount of the binding which used later
   this->sumBind=sumBind;
   vector<DescriptorSetLayoutBinding> descSetLayBinds2;
-  for (DescriptorSetLayoutBinding* descSetLayBind:this->descSetLayBinds) {
+  for (DescriptorSetLayoutBinding* descSetLayBind:this->descSetLayBinds)
     descSetLayBinds2.push_back(*descSetLayBind);
-  }
   DescriptorSetLayoutCreateInfo descSetLayInfo(DescriptorSetLayoutCreateFlags(),descSetLayBinds2);
   this->descSetLayInfo=&descSetLayInfo;
   DescriptorSetLayout descSetLay=this->dev->createDescriptorSetLayout(descSetLayInfo);
@@ -297,9 +298,9 @@ void stdEng::allocateDescriptorSet(){
     for(uint32_t i=0;i<IOSetOffset;++i){
       for(uint32_t j=0;j<bindings.at(i);++j){
         writeDescSets.push_back({descSets.at(i),j,0,i,DescriptorType::eStorageBuffer,nullptr,&descBuffInfos.at(p)});
-        ++p;
-        }
+        p++;
       }
+    }
   }
   this->dev->updateDescriptorSets(writeDescSets,nullptr);
 }
@@ -346,31 +347,28 @@ void stdEng::waitFence(){
 //metode public
 //the main method to running all previous methods
 void stdEng::run() {
-  if(!(this->debugMode==DebugMode::NO)){
-    cout<<"Instance Created with:"<<endl;
-    if(this->debugMode==DebugMode::VERBOSE){
-      cout<<"\tApplicationInfo"<<endl;
-      cout<<"\t\tApplication Name="<<this->appInfo->pApplicationName<<","<<endl;
-      cout<<"\t\tApplication Version="<<this->appInfo->applicationVersion<<","<<endl;
-      cout<<"\t\tEngine Name="<<this->appInfo->pEngineName<<","<<endl;
-      cout<<"\t\tEngine Version="<<this->appInfo->engineVersion<<","<<endl;
-      cout<<"\t\tApi Version used="<<this->appInfo->apiVersion<<","<<endl;
-      cout<<"\tInstanceCreateInfo"<<endl;
-      cout<<"\t\tInstance Flags="<<to_string(this->instInfo->flags)<<","<<endl;
-      cout<<"\t\tAmount of active layer="<<this->instInfo->enabledLayerCount<<","<<endl;
-      cout<<"\t\tActive layers"<<endl;
-      for(uint32_t i=0;i<this->instInfo->enabledLayerCount;++i)
-        cout<<"\t\t\t"<<this->instInfo->ppEnabledLayerNames[i]<<endl;
-      cout<<"\t\tAmount of active extensions"<<this->instInfo->enabledExtensionCount<<endl;
-      cout<<"\t\tActive extensions"<<endl;
-      for(uint32_t i=0;i<this->instInfo->enabledExtensionCount;++i)
-         cout<<"\t\t\t"<<this->instInfo->ppEnabledExtensionNames[i]<<","<<endl;
-      cout<<endl;
+  if(this->debugMode==DebugMode::VERBOSE){
+    cout<<"Instance Created with :"<<endl;;
+    cout<<"\tApplicationInfo"<<endl;
+    cout<<"\t\tApplication Name="<<this->appInfo->pApplicationName<<","<<endl;
+    cout<<"\t\tApplication Version="<<this->appInfo->applicationVersion<<","<<endl;
+    cout<<"\t\tEngine Name="<<this->appInfo->pEngineName<<","<<endl;
+    cout<<"\t\tEngine Version="<<this->appInfo->engineVersion<<","<<endl;
+    cout<<"\t\tApi Version used="<<this->appInfo->apiVersion<<","<<endl;
+    cout<<"\tInstanceCreateInfo"<<endl;
+    cout<<"\t\tInstance Flags="<<to_string(this->instInfo->flags)<<","<<endl;
+    cout<<"\t\tAmount of active layer="<<this->instInfo->enabledLayerCount<<","<<endl;
+    cout<<"\t\tActive layers"<<endl;
+    for(uint32_t i=0;i<this->instInfo->enabledLayerCount;++i)
+      cout<<"\t\t\t"<<this->instInfo->ppEnabledLayerNames[i]<<endl;
+    cout<<"\t\tAmount of active extensions"<<this->instInfo->enabledExtensionCount<<endl;
+    cout<<"\t\tActive extensions"<<endl;
+    for(uint32_t i=0;i<this->instInfo->enabledExtensionCount;++i)
+      cout<<"\t\t\t"<<this->instInfo->ppEnabledExtensionNames[i]<<","<<endl;
     }
-  }
 
   if(!(this->debugMode==DebugMode::NO)){
-    cout<<"Start Creating logical device with:"<<endl;
+    cout<<"Start Creating logical device!"<<endl;
     if(this->debugMode==DebugMode::VERBOSE){
       cout<<"\tCreateInfo"<<endl;
       cout<<"\t\tDevice Flags"<<to_string(this->devInfo->flags)<<","<<endl;
@@ -381,12 +379,12 @@ void stdEng::run() {
       for(uint32_t i=0;i<this->devQInfo->queueCount;++i)
         cout<<"\t\t\t"<<this->devQInfo->pQueuePriorities[i]<<","<<endl;
     }
-    cout<<endl;
   }
   this->createDevice();
 
   if(!(this->debugMode==DebugMode::NO)){
     cout<<"logical device created!"<<endl;
+    cout<<endl;
     cout<<"Start creating buffers!"<<endl;
     if(this->debugMode==DebugMode::VERBOSE){
       cout<<"\tInput Buffer Infos"<<endl;
@@ -402,17 +400,17 @@ void stdEng::run() {
         cout<<endl;
       }
     }
-    cout<<endl;
   }
   this->createBuffer();
 
   if(!(this->debugMode==DebugMode::NO)){
     cout<<"Buffer created succesfully!"<<endl;
-    cout<<"Start filling Inputs memories"<<endl;
+    cout<<endl;
+    cout<<"Start filling Inputs memories!"<<endl;
     if(this->debugMode==DebugMode::VERBOSE){
       if(this->inMems.size()!=this->inputs.size()){
         cout<<"\tWarning! inputs and input memories vector has differ size"<<endl;
-        cout<<"\tThis mean you were wrongly pass inputs size"<<endl;
+        cout<<"\tThis mean you were wrongly passing inputs size"<<endl;
       }
       size_t minSize=inMems.size()>inputs.size()?inMems.size():inputs.size();
       for(size_t i=0;i<minSize;++i){
@@ -424,37 +422,121 @@ void stdEng::run() {
         cout<<endl;
       }
     }
-    cout<<endl;
   }
   this->fillInputs();
+
+  if(!(this->debugMode==DebugMode::NO)){
+    cout<<"Input memories filled!"<<endl;
+    cout<<endl;
+    cout<<"Start creating descriptor set layout!"<<endl;
+    if(this->debugMode==DebugMode::VERBOSE){
+      cout<<"\tTotal Descriptor Set Layout Binding"<<this->descSetLayBinds.size()<<endl;
+      cout<<"\tExisting Descriptor Set Layout Binding:"<<endl;
+      for(DescriptorSetLayoutBinding* descSetLayBind:descSetLayBinds){
+        cout<<"\t\tBinding="<<descSetLayBind->binding<<endl;
+        cout<<"\t\tDescriptor type="<<to_string(descSetLayBind->descriptorType)<<endl;
+        cout<<"\t\tDescriptor count="<<descSetLayBind->descriptorCount<<endl;
+        cout<<"\t\tDescriptor Stage Flags"<<to_string(descSetLayBind->stageFlags)<<endl;
+        cout<<"\t\tSamplers=null"<<endl; //we dont need
+      }
+      cout<<"\tTotal Binding="<<this->sumBind<<endl;
+      cout<<"\tDescriptor Set Layout Create Info"<<endl;
+      cout<<"\t\tBinding count="<<this->descSetLayInfo->bindingCount<<endl;
+      cout<<"\t\tFlags="<<to_string(this->descSetLayInfo->flags)<<endl;
+    }
+  }
+  this->createDescriptorSetLayout();
+
+  if(!(this->debugMode==DebugMode::NO)){
+    cout<<"Descriptor Set Layout created!"<<endl;
+    cout<<endl;
+    cout<<"Start creating Pipeline Layout!"<<endl;
+    if(this->debugMode==DebugMode::VERBOSE){
+      cout<<""<<to_string(this->pipeLayInfo->flags)<<endl;
+      cout<<""<<this->pipeLayInfo->setLayoutCount<<endl;
+      /* pSetLayout alway point to Descriptor Set Layout that's created before
+       * push Range Count and pushConstant not implemented yet
+       */
+    }
+  }
+  this->createPipelineLayout();
+
+  if(!(this->debugMode==DebugMode::NO)){
+    cout<<"Pipeline Layout Created!"<<endl;
+    cout<<endl;
+    cout<<"Start creating pipeline"<<endl;
+    if(this->debugMode==DebugMode::VERBOSE){
+      cout<<"\t"<<this->compPipeInfo-><<endl;
+    }
+  }
+  this->createPipeline();
+
   if(!(this->debugMode==DebugMode::NO)){
     if(this->debugMode==DebugMode::VERBOSE){
     }
   }
-  this->createDescriptorSetLayout();
-  this->createPipelineLayout();
-  this->createPipeline();
   this->createDescriptorPool();
+
+  if(!(this->debugMode==DebugMode::NO)){
+    if(this->debugMode==DebugMode::VERBOSE){
+    }
+  }
   this->allocateDescriptorSet();
+
+  if(!(this->debugMode==DebugMode::NO)){
+    if(this->debugMode==DebugMode::VERBOSE){
+    }
+  }
   this->createCommandBuffer();
+
+  if(!(this->debugMode==DebugMode::NO)){
+    if(this->debugMode==DebugMode::VERBOSE){
+    }
+  }
   this->sendCommand();
+
+  if(!(this->debugMode==DebugMode::NO)){
+    if(this->debugMode==DebugMode::VERBOSE){
+    }
+  }
   this->waitFence();
 
 }
 
 //destructor
 stdEng::~stdEng() {
+  if(!(this->debugMode==DebugMode::NO)) cout<<"Destroying fence"<<endl;
   this->dev->destroyFence(*this->fence);
+
+  if(!(this->debugMode==DebugMode::NO)) cout<<"Reset CommandPool"<<endl;
   this->dev->resetCommandPool(*this->cmdPool);
+
+  if(!(this->debugMode==DebugMode::NO)) cout<<"Destroying Descriptor Set Layout"<<endl;
   this->dev->destroyDescriptorSetLayout(*this->descSetLay);
+
+  if(!(this->debugMode==DebugMode::NO)) cout<<"Destroying PipelineLayout"<<endl;
   this->dev->destroyPipelineLayout(*this->pipeLay);
+
+  if(!(this->debugMode==DebugMode::NO)) cout<<"Destroying Shader Moduld"<<endl;
   this->dev->destroyShaderModule(*this->shadMod);
+
+  if(!(this->debugMode==DebugMode::NO)) cout<<"Destroying Descriptor Pool"<<endl;
   this->dev->destroyDescriptorPool(*this->descPool);
+
+  if(!(this->debugMode==DebugMode::NO)) cout<<"Destroying CommandPool"<<endl;
   this->dev->destroyCommandPool(*this->cmdPool);
+
+  if(!(this->debugMode==DebugMode::NO)) cout<<"Free Memory input and output"<<endl;
   for(DeviceMemory* mem:this->inMems)this->dev->freeMemory(*mem);
   for(DeviceMemory* mem:this->outMems)this->dev->freeMemory(*mem);
+
+  if(!(this->debugMode==DebugMode::NO)) cout<<"Destroying buffer"<<endl;
   for(Buffer* buff:this->inBuffs)this->dev->destroyBuffer(*buff);
   for(Buffer* buff:this->outBuffs)this->dev->destroyBuffer(*buff);
+
+  if(!(this->debugMode==DebugMode::NO)) cout<<"Destroying Device"<<endl;
   this->dev->destroy();
+
+  if(!(this->debugMode==DebugMode::NO)) cout<<"Destroying Instance"<<endl;
   this->inst->destroy();
 }

@@ -3,3 +3,5 @@ CMakeCache.txt
 *.cmake
 bin/
 build/
+*json
+*.sh

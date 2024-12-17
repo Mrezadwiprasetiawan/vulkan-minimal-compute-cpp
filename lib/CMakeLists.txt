@@ -1,12 +1,10 @@
-cmake_minimum_required(VERSION 3.31.2)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} include)
 
-project(vkmincomp)
-
-find_package(Vulkan)
-
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(SOURCE_FILES ${SOURCE_DIR}/stdEng.cxx)
 
 #uncomment salah satu
-add_library(${PROJECT_NAME} SHARED src/stdEng.cxx)
-#add_library(${PROJECT_NAME} STATIC src/stdEng.cxx)
+add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
+#add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
