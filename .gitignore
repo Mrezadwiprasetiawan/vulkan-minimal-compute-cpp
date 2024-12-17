@@ -1,7 +1,16 @@
+#cache and git folders
+.*/*  
+
+#cmake file
 *CMakeFiles/
 CMakeCache.txt
 *.cmake
-bin/
-build/
+
+//clangd file
 *json
+
+#my custom command to run cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
 *.sh
+
+#vim lock files
+*.sw*
