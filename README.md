@@ -46,7 +46,7 @@ vulkan-minimal-compute-cpp/
 ├── CMakeLists.txt         # CMake configuration file
 ├── lib/                   # Vulkan minimal compute library
 │   ├── src/               # Source files for the library
-│   │   ├── stdEng.cxx           #for complex compute implementation
+│   │   ├── stdEng.cxx     #for complex compute implementation
 │   │   └── ...
 │   ├── include/           
 │   │   ├── vkmincomp.hxx  # Header files for the library
