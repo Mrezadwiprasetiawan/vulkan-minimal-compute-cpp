@@ -1,3 +1,6 @@
+// Copyright 2024 M Reza Dwi Prasetiawan
+// License under GNU GPL v3
+// For more information visit https://www.gnu.org/licenses/gpl-3.0.html
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
