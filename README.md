@@ -1,6 +1,6 @@
 # Vulkan Minimal Compute C++
 
-This repository provides a minimal example of performing compute operations using Vulkan in C++.
+This repository provides a quick reference and library to performing compute operations using Vulkan in C++.
 
 ## Features
 
