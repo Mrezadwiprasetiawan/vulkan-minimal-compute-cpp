@@ -14,7 +14,7 @@ using namespace vkmincomp;
  * @param appname The name of your Application Instance
  * @param appvers Version of your Application
  * @param engname The name of your Engine;
- * @param engvers Version of your Application
+ * @param engvers Version of your Engine;
  *
  * apivers use available and the higher version API of the vulkan driver
  */
