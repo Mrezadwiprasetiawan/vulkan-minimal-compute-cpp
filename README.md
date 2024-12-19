@@ -48,9 +48,9 @@ vulkan-minimal-compute-cpp/
 │   ├── src/               # Source files for the library
 │   │   ├── compute.cxx    # Core Vulkan compute implementation
 │   │   └── ...
-│   ├── include/           # Header files for the library
-│   │   ├── vkmincomp.hxx  # Public interface for Vulkan compute
-│   │   └── ...
+│   ├── include/           
+│   │   ├── vkmincomp.hxx  # Header files for the library
+│
 ├── quick/                 # Quick reference example
 │   ├── main.cxx           # Quick compute example
 │   └── ...
