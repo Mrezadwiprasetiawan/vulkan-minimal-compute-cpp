@@ -41,7 +41,7 @@ make vkmincomp
 ```
 
 ## Directory Structure
-
+```txt
 vulkan-minimal-compute-cpp/
   ├── CMakeLists.txt      # CMake configuration file
   ├── src/                # Source code
@@ -51,7 +51,7 @@ vulkan-minimal-compute-cpp/
   │   ├── compute_shader.comp
   │   └── ...
   └── README.md           # Project documentation
-
+```
 ## Contributing
 
 Contributions are welcome. Please fork the repository and submit a pull request with your changes.
