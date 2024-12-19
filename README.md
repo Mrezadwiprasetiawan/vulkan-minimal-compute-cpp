@@ -20,24 +20,32 @@ Before you begin, ensure you have the following installed:
 
 1. Clone the repository:
 
-   git clone https://github.com/Mrezadwiprasetiawan/vulkan-minimal-compute-cpp.git
-   cd vulkan-minimal-compute-cpp
+```bash
+  git clone https://github.com/Mrezadwiprasetiawan/vulkan-minimal-compute-cpp.git
+  cd vulkan-minimal-compute-cpp
+  ```
 
 2. Create a build directory and navigate into it:
 
-   mkdir build
-   cd build
+```bash
+  mkdir build
+  cd build
+  ```
 
 3. Run CMake and compile:
 
-   cmake ..
-   make
+```bash
+  cmake ..
+  make
+  ```
 
 ## Usage
 
 After a successful build, you can run the application with the following command:
 
-   ./vulkan_compute_example
+```bash
+  ./vulkan_compute_example
+  ```
 
 The application will execute a simple computation using Vulkan and display the results in the console.
 
@@ -46,12 +54,12 @@ The application will execute a simple computation using Vulkan and display the r
 The main directory structure of this repository is as follows:
 
 vulkan-minimal-compute-cpp/
-├── lib/                # Third-party libraries
-├── quick/              # Vulkan compute implementations
-├── shaders/            # Shader source code
-├── CMakeLists.txt      # CMake configuration file
-└── LICENSE             # Project license
-
+  ├── lib/                # Third-party libraries
+  ├── quick/              # Vulkan compute implementations
+  ├── shaders/            # Shader source code
+  ├── CMakeLists.txt      # CMake configuration file
+  └── LICENSE             # Project license
+7
 ## Contributing
 
 Contributions are welcome. Please fork this repository and submit a pull request for any improvements or new features.
