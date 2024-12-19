@@ -25,35 +25,20 @@ git clone https://github.com/Mrezadwiprasetiawan/vulkan-minimal-compute-cpp.git
 cd vulkan-minimal-compute-cpp
 ```
 
-2. Create a build directory and navigate into it:
-
+2. Configure the project with CMake:
 ```bash
-mkdir build
-cd build
+cmake .
 ```
 
-3. Configure the project with CMake:
-
+#usage
+1. Build the quick project:
 ```bash
-cmake ..
+make quick
 ```
-
-4. Build the project:
-
-
+2. Build the library
 ```bash
-make help
+make vkmincomp
 ```
-
-## Usage
-
-After building, run the application:
-
-```bash
-./vulkan_compute_example
-```
-
-This will execute a simple compute operation using Vulkan and display the results.
 
 ## Directory Structure
 
