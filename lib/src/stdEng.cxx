@@ -21,11 +21,6 @@ using namespace vkmincomp;
 stdEng::stdEng(const char *appname, uint32_t appvers, const char *engname,
                uint32_t engvers) {
   uint32_t apivers = enumerateInstanceVersion();
-  cout << appname << endl;
-  cout << appvers << endl;
-  cout << engname << endl;
-  cout << engvers << endl;
-  cout << apivers << endl;
   ApplicationInfo appInfo(appname, appvers, engname, engvers, apivers);
   this->appInfo = appInfo;
   InstanceCreateInfo instInfo({}, &appInfo, 0, {}, 0, {});
@@ -127,11 +122,13 @@ void stdEng::setDebugMode(DebugMode debugMode) { this->debugMode = debugMode; }
 void stdEng::createDevice() {
   if (!this->inst) {
     cout << "Instance not created yet!" << endl;
+    delete this;
     exit(EXIT_FAILURE);
   }
   vector<PhysicalDevice> physdevs = this->inst.enumeratePhysicalDevices();
   if (physdevs.empty()) {
     cout << "No Vulkan driver found!" << endl;
+    delete this;
     exit(EXIT_FAILURE);
   }
   this->physdev = PhysicalDevice(physdevs[0]);
@@ -144,6 +141,7 @@ void stdEng::createDevice() {
   this->queueFamIndex = distance(qFamProps.begin(), qFamProp);
   if (this->queueFamIndex == qFamProps.size()) {
     cout << "No Queue Family found!" << endl;
+    delete this;
     exit(EXIT_FAILURE);
   }
   DeviceQueueCreateInfo devQInfo(DeviceQueueCreateFlags(), this->queueFamIndex,
@@ -159,6 +157,7 @@ void stdEng::createDevice() {
 void stdEng::createBuffer() {
   if (this->insizes.empty() || this->outsizes.empty()) {
     cout << "No input or output size has been set!" << endl;
+    delete this;
     exit(EXIT_FAILURE);
   }
   for (size_t insize : this->insizes) {
@@ -202,8 +201,11 @@ void stdEng::allocateMemory() {
       break;
     }
   }
-  if (heapIndex == uint32_t(~0))
-    throw runtime_error("No heap found");
+  if (heapIndex == uint32_t(~0)) {
+    cout << "No heap found" << endl;
+    delete this;
+    exit(EXIT_FAILURE);
+  }
   int inCount = 0, outCount = 0;
   for (MemoryRequirements inMemReq : this->inMemReqs) {
     inCount++;
@@ -219,7 +221,7 @@ void stdEng::allocateMemory() {
     DeviceMemory outmem = this->dev.allocateMemory(outMemAllocInfo);
     this->outMems.push_back(outmem);
   }
-  cout << "inCount and outCount = " << inCount << outCount << endl;
+  cout << "inCount and outCount = " << inCount << "," << outCount << endl;
 }
 
 // fill the memories with our inputs data in byte
@@ -229,6 +231,7 @@ void stdEng::fillInputs() {
       cout << "No input memory has been set!" << endl;
     if (this->inputs.empty())
       cout << "No input data has been set!" << endl;
+    delete this;
     exit(EXIT_FAILURE);
   }
   for (size_t i = 0; i < this->inputs.size(); ++i) {
@@ -243,8 +246,11 @@ void stdEng::fillInputs() {
 void stdEng::loadShader() {
   vector<char> shaderRaw;
   ifstream shaderFile(this->filepath, ios::ate | ios::binary);
-  if (!shaderFile)
-    throw runtime_error("Failed to open shader file");
+  if (!shaderFile) {
+    cout << "Failed to open shader file" << endl;
+    delete this;
+    exit(EXIT_FAILURE);
+  }
   size_t shaderSize = shaderFile.tellg();
   shaderFile.seekg(0);
   shaderRaw.resize(shaderSize);
@@ -264,6 +270,7 @@ void stdEng::createDescriptorSetLayout() {
   uint32_t sumBind = 0;
   if (this->bindings.empty()) {
     cout << "No binding has been set!" << endl;
+    delete this;
     exit(EXIT_FAILURE);
   }
   for (uint32_t setI = 0; setI < this->bindings.size(); ++setI) {
@@ -309,8 +316,11 @@ void stdEng::createPipeline() {
                                          pipeShadStagInfo, this->pipeLay);
   this->compPipeInfo = compPipeInfo;
   ResultValue res = this->dev.createComputePipeline(pipeCache, compPipeInfo);
-  if (res.result != Result::eSuccess)
-    throw runtime_error("Failed to create pipeline");
+  if (res.result != Result::eSuccess) {
+    cout << "Failed to create pipeline" << endl;
+    delete this;
+    exit(EXIT_FAILURE);
+  }
   Pipeline pipe =
       this->dev.createComputePipeline(pipeCache, compPipeInfo).value;
   this->pipe = pipe;
@@ -442,10 +452,12 @@ void stdEng::run() {
       cout << "\t\t\t" << this->instInfo.ppEnabledLayerNames[i] << endl;
     cout << "\t\tAmount of active extensions"
          << this->instInfo.enabledExtensionCount << endl;
-    cout << "\t\tActive extensions" << endl;
+    if (this->instInfo.enabledExtensionCount)
+      cout << "\t\tActive extensions" << endl;
     for (uint32_t i = 0; i < this->instInfo.enabledExtensionCount; ++i)
       cout << "\t\t\t" << this->instInfo.ppEnabledExtensionNames[i] << ","
            << endl;
+    cout << endl;
     cout << "start creating logical device" << endl;
   }
 
@@ -455,23 +467,27 @@ void stdEng::run() {
     cout << "logical device created" << endl;
     if (this->debugMode == DebugMode::VERBOSE) {
       cout << "\tCreateInfo" << endl;
-      cout << "\t\tDevice Flags" << to_string(this->devInfo.flags) << ","
+      cout << "\t\tDevice Flags = " << to_string(this->devInfo.flags) << ","
            << endl;
-      cout << "\t\tDevice Queue Flags" << to_string(this->devQInfo.flags) << ","
-           << endl;
-      cout << "\t\t Queue Family Index" << this->devQInfo.queueFamilyIndex
+      cout << "\t\tDevice Queue Flags = " << to_string(this->devQInfo.flags)
+           << "," << endl;
+      cout << "\t\t Queue Family Index = " << this->devQInfo.queueFamilyIndex
            << "," << endl;
       cout << "\t\tQueue Count = " << this->devQInfo.queueCount << endl;
-      cout << "\\Queues" << endl;
+      if (this->devQInfo.queueCount)
+        cout << "\t\tQueues:" << endl;
       for (uint32_t i = 0; i < this->devQInfo.queueCount; ++i)
-        cout << "\t\t\t" << this->devQInfo.pQueuePriorities[i] << "," << endl;
+        cout << "\t\t\tQueue Priority = " << i
+             << this->devQInfo.pQueuePriorities[i] << "," << endl;
     }
+    cout << endl;
     cout << "Start creating Buffers" << endl;
   }
 
   this->createBuffer();
 
   if (!(this->debugMode == DebugMode::NO)) {
+    cout << "Buffers created!" << endl;
     if (this->debugMode == DebugMode::VERBOSE) {
       cout << "\tInput Buffer Infos" << endl;
       for (BufferCreateInfo buffInfo : this->inBuffInfos) {
@@ -483,7 +499,8 @@ void stdEng::run() {
              << endl;
         cout << "\t\tQueue Family Index Count = "
              << buffInfo.queueFamilyIndexCount << endl;
-        cout << "\t\tQueue Family Indices" << endl;
+        if (buffInfo.queueFamilyIndexCount)
+          cout << "\t\tQueue Family Indices" << endl;
         for (uint32_t i = 0; i < buffInfo.queueFamilyIndexCount; ++i)
           cout << "\t\t\t" << buffInfo.pQueueFamilyIndices << endl;
         cout << endl;
@@ -531,7 +548,7 @@ void stdEng::run() {
       size_t minSize =
           inMems.size() > inputs.size() ? inMems.size() : inputs.size();
       for (size_t i = 0; i < minSize; ++i) {
-        cout << "\tinput memory " << i << "will be filled by" << endl;
+        cout << "\tinput memory " << i << "filled by" << endl;
         cout << "\tinput " << i << "in byte:" << endl;
         const char *inputBytes = reinterpret_cast<char *>(&inputs.at(i));
         for (size_t j = 0; j < this->insizes.at(i) / this->inputs.at(i).size();
@@ -540,7 +557,20 @@ void stdEng::run() {
         cout << endl;
       }
     }
-    cout << "Start creating descriptor set layout!" << endl;
+    cout << "Start load Shader!" << endl;
+  }
+
+  this->loadShader();
+
+  if (!(this->debugMode == DebugMode::NO)) {
+    cout << "Shader loaded!" << endl;
+    if (this->debugMode == DebugMode::VERBOSE) {
+      cout << "\tShader Module Create Info" << endl;
+      cout << "\t\tFlags = " << to_string(this->shadModInfo.flags) << endl;
+      cout << "\t\tCode Size = " << this->shadModInfo.codeSize << endl;
+      cout << "\t\tCode = " << this->shadModInfo.pCode << endl;
+    }
+    cout << "Start creating Descriptor Set Layout!" << endl;
   }
 
   this->createDescriptorSetLayout();
@@ -577,9 +607,10 @@ void stdEng::run() {
     if (this->debugMode == DebugMode::VERBOSE) {
       cout << "\tFlags = " << to_string(this->pipeLayInfo.flags) << endl;
       cout << "Set Layout Count" << this->pipeLayInfo.setLayoutCount << endl;
-      /* pSetLayout alway point to Descriptor Set Layout that's created before
-       * push Range Count and pushConstant not implemented yet
-       */
+      if (this->pipeLayInfo.setLayoutCount)
+        cout << "Set Layouts" << endl;
+      for (uint32_t i = 0; i < this->pipeLayInfo.setLayoutCount; ++i)
+        cout << "\t\t" << this->pipeLayInfo.pSetLayouts[i] << endl;
     }
     cout << "Start creating pipeline" << endl;
   }
@@ -597,9 +628,9 @@ void stdEng::run() {
            << endl;
       cout << "\t\tShader module from = " << this->filepath << endl;
       // specializationInfo we dont need this i think
-      // pipeline layout using previous Pipeline Layout
-      // BasePipelineHandle is not used;
-      // BasePipelineIndex is also not ued;
+      cout << "\t\tPipeline Layout = " << this->pipeLay << endl;
+      cout << "\t\tBase Pipeline Handle = " << this->compPipeInfo.basePipelineHandle << endl;
+      cout << "\t\tBase Pipeline Index = " << this->compPipeInfo.basePipelineIndex << endl;
     }
     cout << "Start creating Descriptor Pool" << endl;
   }
@@ -620,10 +651,6 @@ void stdEng::run() {
              << to_string(this->descPoolInfo.pPoolSizes[i].type) << endl;
         cout << "\t\t\tCount = "
              << this->descPoolInfo.pPoolSizes[i].descriptorCount << endl;
-        for (uint32_t j = 0;
-             j < this->descPoolInfo.pPoolSizes[i].descriptorCount; ++j)
-          cout << "\t\t\t\t" << this->descPoolInfo.pPoolSizes[i].descriptorCount
-               << endl;
       }
     }
   }
@@ -681,6 +708,24 @@ void stdEng::run() {
       cout << "\tFence result = " << to_string(this->waitFenceRes) << endl;
     }
   }
+}
+
+vector<vector<void*>> stdEng::mapOutputs(){
+  if (this->outMems.empty() || this->outputs.empty()) {
+    if (this->outMems.empty())
+      cout << "No output memory has been set!" << endl;
+    if (this->outputs.empty())
+      cout << "No output data has been set!" << endl;
+    delete this;
+    exit(EXIT_FAILURE);
+  }
+  for (size_t i = 0; i < this->outputs.size(); ++i) {
+    void *outPtr =
+        this->dev.mapMemory(this->outMems.at(i), 0, this->outsizes.at(i));
+    memcpy(outPtr, this->outputs.at(i).data(), this->outsizes.at(i));
+    this->dev.unmapMemory(this->outMems.at(i));
+  }
+  return this->outputs;
 }
 
 // destructor

@@ -20,6 +20,7 @@ namespace vkmincomp {
 enum DebugMode { VERBOSE, STANDARD, NO };
 
 class stdEng {
+
 private:
   DebugMode debugMode = DebugMode::NO;
   uint32_t width, height, depth;
@@ -109,6 +110,8 @@ public:
   void setEntryPoint(const char *entryPoint);
   void setWaitFenceFor(uint64_t time);
 
+  vector<vector<void*>> mapOutputs();
+
   void run();
 
   ~stdEng();
@@ -116,4 +119,4 @@ public:
 
 } // namespace vkmincomp
 
-#endif // _VKMINCOMP_H
+#endif // _VKMINCOMP_HXX
