@@ -68,4 +68,4 @@ Contributions are welcome. Please fork the repository and submit a pull request 
 
 ## License
 
-This project is licensed under the GNU GPLv3 License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU GPL 3.0 License. See the [LICENSE](LICENSE) file for details.
