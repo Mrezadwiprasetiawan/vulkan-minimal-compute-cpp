@@ -204,7 +204,7 @@ void stdEng::allocateMemory() {
   }
   if (heapIndex == uint32_t(~0))
     throw runtime_error("No heap found");
-  int inCount=0, outCount=0;
+  int inCount = 0, outCount = 0;
   for (MemoryRequirements inMemReq : this->inMemReqs) {
     inCount++;
     MemoryAllocateInfo inMemAllocInfo(inMemReq.size, heapIndex);
@@ -219,16 +219,16 @@ void stdEng::allocateMemory() {
     DeviceMemory outmem = this->dev.allocateMemory(outMemAllocInfo);
     this->outMems.push_back(outmem);
   }
-  cout<<"inCount and outCount = "<<inCount<<outCount<<endl;
+  cout << "inCount and outCount = " << inCount << outCount << endl;
 }
 
 // fill the memories with our inputs data in byte
 void stdEng::fillInputs() {
   if (this->inMems.empty() || this->inputs.empty()) {
-    if(this->inMems.empty())
-      cout<<"No input memory has been set!" << endl;
-    if(this->inputs.empty())
-      cout<<"No input data has been set!" << endl;
+    if (this->inMems.empty())
+      cout << "No input memory has been set!" << endl;
+    if (this->inputs.empty())
+      cout << "No input data has been set!" << endl;
     exit(EXIT_FAILURE);
   }
   for (size_t i = 0; i < this->inputs.size(); ++i) {
@@ -336,10 +336,7 @@ void stdEng::allocateDescriptorSet() {
   DescriptorSetAllocateInfo descSetAllocInfo(
       this->descPool, this->bindings.size(), &this->descSetLay);
   this->descSetAllocInfo = descSetAllocInfo;
-  vector<DescriptorSet> descSets =
-      this->dev.allocateDescriptorSets(descSetAllocInfo);
-  for (DescriptorSet descSet : descSets)
-    this->descSets.push_back(descSet);
+  this->descSets = this->dev.allocateDescriptorSets(descSetAllocInfo);
   vector<DescriptorBufferInfo> descBuffInfos;
   for (uint32_t i = 0; i < this->insizes.size(); ++i) {
     DescriptorBufferInfo descbuffinfo(this->inBuffs.at(i), 0,
@@ -402,11 +399,8 @@ void stdEng::sendCommand() {
 
   cmdBuff.begin(cmdBuffBeginInfo);
   cmdBuff.bindPipeline(PipelineBindPoint::eCompute, this->pipe);
-  vector<DescriptorSet> realDescSets;
-  for (DescriptorSet descset : this->descSets)
-    realDescSets.push_back(descset);
   cmdBuff.bindDescriptorSets(PipelineBindPoint::eCompute, this->pipeLay, 0,
-                             realDescSets, {});
+                             this->descSets, {});
   cmdBuff.dispatch(this->width, this->height, this->depth);
   cmdBuff.end();
 }
