@@ -1,5 +1,5 @@
 set(EXE_SRC main.cxx)
-set(EXE_NAME run)
+set(EXE_NAME vulkan_compute_example)
 
 add_executable(${EXE_NAME} ${EXE_SRC})
 
