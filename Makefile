@@ -57,10 +57,10 @@ RM = /data/data/com.termux/files/usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /data/data/com.termux/files/home/vulkan/computeCpp
+CMAKE_SOURCE_DIR = /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /data/data/com.termux/files/home/vulkan/computeCpp
+CMAKE_BINARY_DIR = /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /data/data/com.termux/files/home/vulkan/computeCpp/CMakeFiles /data/data/com.termux/files/home/vulkan/computeCpp//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp/CMakeFiles /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /data/data/com.termux/files/home/vulkan/computeCpp/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp/CMakeFiles 0
 .PHONY : all
 
 # The main codegen target

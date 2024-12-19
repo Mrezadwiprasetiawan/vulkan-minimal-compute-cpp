@@ -57,10 +57,10 @@ RM = /data/data/com.termux/files/usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /data/data/com.termux/files/home/vulkan/computeCpp
+CMAKE_SOURCE_DIR = /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /data/data/com.termux/files/home/vulkan/computeCpp
+CMAKE_BINARY_DIR = /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(CMAKE_COMMAND) -E cmake_progress_start /data/data/com.termux/files/home/vulkan/computeCpp/CMakeFiles /data/data/com.termux/files/home/vulkan/computeCpp/quick//CMakeFiles/progress.marks
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 quick/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /data/data/com.termux/files/home/vulkan/computeCpp/CMakeFiles 0
+	cd /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp && $(CMAKE_COMMAND) -E cmake_progress_start /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp/CMakeFiles /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp/quick//CMakeFiles/progress.marks
+	cd /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 quick/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp/CMakeFiles 0
 .PHONY : all
 
 # The main codegen target
@@ -100,7 +100,7 @@ codegen: cmake_check_build_system
 
 # The main clean target
 clean:
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 quick/clean
+	cd /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 quick/clean
 .PHONY : clean
 
 # The main clean target
@@ -109,22 +109,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 quick/preinstall
+	cd /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 quick/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 quick/preinstall
+	cd /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 quick/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 quick/CMakeFiles/run.dir/rule:
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 quick/CMakeFiles/run.dir/rule
+	cd /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 quick/CMakeFiles/run.dir/rule
 .PHONY : quick/CMakeFiles/run.dir/rule
 
 # Convenience name for target.
@@ -133,12 +133,12 @@ run: quick/CMakeFiles/run.dir/rule
 
 # fast build rule for target.
 run/fast:
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f quick/CMakeFiles/run.dir/build.make quick/CMakeFiles/run.dir/build
+	cd /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp && $(MAKE) $(MAKESILENT) -f quick/CMakeFiles/run.dir/build.make quick/CMakeFiles/run.dir/build
 .PHONY : run/fast
 
 # Convenience name for target.
 quick/CMakeFiles/compShader.dir/rule:
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 quick/CMakeFiles/compShader.dir/rule
+	cd /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 quick/CMakeFiles/compShader.dir/rule
 .PHONY : quick/CMakeFiles/compShader.dir/rule
 
 # Convenience name for target.
@@ -147,7 +147,7 @@ compShader: quick/CMakeFiles/compShader.dir/rule
 
 # fast build rule for target.
 compShader/fast:
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f quick/CMakeFiles/compShader.dir/build.make quick/CMakeFiles/compShader.dir/build
+	cd /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp && $(MAKE) $(MAKESILENT) -f quick/CMakeFiles/compShader.dir/build.make quick/CMakeFiles/compShader.dir/build
 .PHONY : compShader/fast
 
 main.o: main.cxx.o
@@ -155,7 +155,7 @@ main.o: main.cxx.o
 
 # target to build an object file
 main.cxx.o:
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f quick/CMakeFiles/run.dir/build.make quick/CMakeFiles/run.dir/main.cxx.o
+	cd /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp && $(MAKE) $(MAKESILENT) -f quick/CMakeFiles/run.dir/build.make quick/CMakeFiles/run.dir/main.cxx.o
 .PHONY : main.cxx.o
 
 main.i: main.cxx.i
@@ -163,7 +163,7 @@ main.i: main.cxx.i
 
 # target to preprocess a source file
 main.cxx.i:
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f quick/CMakeFiles/run.dir/build.make quick/CMakeFiles/run.dir/main.cxx.i
+	cd /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp && $(MAKE) $(MAKESILENT) -f quick/CMakeFiles/run.dir/build.make quick/CMakeFiles/run.dir/main.cxx.i
 .PHONY : main.cxx.i
 
 main.s: main.cxx.s
@@ -171,7 +171,7 @@ main.s: main.cxx.s
 
 # target to generate assembly for a file
 main.cxx.s:
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(MAKE) $(MAKESILENT) -f quick/CMakeFiles/run.dir/build.make quick/CMakeFiles/run.dir/main.cxx.s
+	cd /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp && $(MAKE) $(MAKESILENT) -f quick/CMakeFiles/run.dir/build.make quick/CMakeFiles/run.dir/main.cxx.s
 .PHONY : main.cxx.s
 
 # Help Target
@@ -198,6 +198,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /data/data/com.termux/files/home/vulkan/computeCpp && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /data/data/com.termux/files/home/vulkan/vulkan-minimal-compute-cpp && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 
