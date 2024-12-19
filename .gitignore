@@ -6,6 +6,9 @@
 CMakeCache.txt
 *.cmake
 
+#Makefile
+*/Makefile
+
 //clangd file
 *json
 
