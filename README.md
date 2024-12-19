@@ -30,7 +30,7 @@ cd vulkan-minimal-compute-cpp
 cmake .
 ```
 
-#usage
+# Usage
 1. Build the quick project:
 ```bash
 make quick
